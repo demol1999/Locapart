@@ -1,9 +1,9 @@
-// src/main.jsx (ou index.js selon ta structure)
+// src/main.jsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import './index.css'; // Assure-toi que ton CSS global (et Tailwind) est importé
-import './i18n'; // Importe la configuration i18next pour l'initialiser
+import './index.css';
+// import './i18n'; // <-- Commente cette ligne temporairement
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
