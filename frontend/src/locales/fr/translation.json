@@ -1,0 +1,34 @@
+
+{
+    "loginPage": {
+      "title": "Connectez-vous à Votre Compte",
+      "emailLabel": "Adresse e-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "passwordLabel": "Mot de passe",
+      "submitButton": "Se connecter",
+      "loadingButton": "Connexion...",
+      "noAccount": "Pas encore de compte ?",
+      "registerLink": "S'inscrire",
+      "error": {
+        "generic": "Échec de la connexion. Vérifiez vos identifiants et réessayez.",
+         "Incorrect email or password": "Email ou mot de passe incorrect."
+      }
+    },
+    "registerPage": {
+      "title": "Créer un Nouveau Compte",
+      "fullNameLabel": "Nom complet",
+      "fullNamePlaceholder": "Jean Dupont",
+      "emailLabel": "Adresse e-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "passwordLabel": "Mot de passe",
+      "submitButton": "Créer le compte",
+      "loadingButton": "Création du compte...",
+      "alreadyAccount": "Déjà un compte ?",
+      "loginLink": "Se connecter",
+      "successMessage": "Compte créé avec succès ! Redirection vers la connexion...",
+      "error": {
+        "generic": "Échec de l'inscription. Veuillez réessayer.",
+        "Email already registered": "Cette adresse e-mail est déjà enregistrée."
+      }
+    }
+  }

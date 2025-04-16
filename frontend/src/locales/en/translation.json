@@ -1,0 +1,33 @@
+{
+    "loginPage": {
+      "title": "Login to Your Account",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "submitButton": "Sign in",
+      "loadingButton": "Signing in...",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Sign up",
+      "error": {
+        "generic": "Login failed. Please check your credentials and try again.",
+        "Incorrect email or password": "Incorrect email or password."
+      }
+    },
+    "registerPage": {
+      "title": "Create a New Account",
+      "fullNameLabel": "Full Name",
+      "fullNamePlaceholder": "John Doe",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "submitButton": "Create account",
+      "loadingButton": "Creating account...",
+      "alreadyAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "successMessage": "Account created successfully! Redirecting to login...",
+      "error": {
+        "generic": "Registration failed. Please try again.",
+        "Email already registered": "This email address is already registered."
+      }
+    }
+  }
