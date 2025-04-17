@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import apiClient, { setAuthToken, clearAuthToken } from '../services/api';
+import apiClient from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
         sessionStorage.setItem('access_token', access_token);
         localStorage.removeItem('access_token');
       }
-      setAuthToken(access_token);
+
       await fetchUser();
       return true;
     } catch (error) {
@@ -61,7 +61,8 @@ export const AuthProvider = ({ children }) => {
       setUser(response.data);
       return true;
     } catch (error) {
-      clearAuthToken();
+      localStorage.removeItem('access_token');
+      sessionStorage.removeItem('access_token');
       setUser(null);
       return false;
     }
@@ -71,7 +72,6 @@ export const AuthProvider = ({ children }) => {
   React.useEffect(() => {
     const storedToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
     if (storedToken) {
-      setAuthToken(storedToken);
       fetchUser();
     }
   }, [fetchUser]);

@@ -131,10 +131,18 @@ def delete_building(building_id: int, db: Session = Depends(get_db), current_use
 
 @app.get("/buildings/{building_id}/apartments", response_model=List[schemas.ApartmentOut])
 def get_my_apartments_in_building(building_id: int, db: Session = Depends(get_db), current_user: models.UserAuth = Depends(get_current_user)):
-    apartments = db.query(models.Apartment).join(models.ApartmentUserLink).filter(
-        models.Apartment.building_id == building_id,
-        models.ApartmentUserLink.user_id == current_user.id
-    ).all()
+    building = db.query(models.Building).filter(models.Building.id == building_id).first()
+    if not building:
+        raise HTTPException(status_code=404, detail="Immeuble introuvable")
+    if building.user_id == current_user.id:
+        # Propriétaire : voit tous les appartements
+        apartments = db.query(models.Apartment).filter(models.Apartment.building_id == building_id).all()
+    else:
+        # Sinon, ne voit que ceux où il est lié
+        apartments = db.query(models.Apartment).join(models.ApartmentUserLink).filter(
+            models.Apartment.building_id == building_id,
+            models.ApartmentUserLink.user_id == current_user.id
+        ).all()
     return apartments
 
 
@@ -146,13 +154,15 @@ def create_apartment(apartment: schemas.ApartmentCreate, db: Session = Depends(g
         raise HTTPException(status_code=404, detail="Immeuble introuvable")
     existing_apartments = db.query(models.Apartment).filter(models.Apartment.building_id == apartment.building_id).count()
     if existing_apartments > 0:
-        links = db.query(models.ApartmentUserLink).join(models.Apartment).filter(
-            models.Apartment.building_id == apartment.building_id,
-            models.ApartmentUserLink.user_id == current_user.id,
-            models.ApartmentUserLink.role.in_(["owner", "gestionnaire"])
-        ).all()
-        if not links:
-            raise HTTPException(status_code=403, detail="Pas autorisé à ajouter un appartement")
+        # Autoriser si propriétaire de l'immeuble
+        if building.user_id != current_user.id:
+            links = db.query(models.ApartmentUserLink).join(models.Apartment).filter(
+                models.Apartment.building_id == apartment.building_id,
+                models.ApartmentUserLink.user_id == current_user.id,
+                models.ApartmentUserLink.role.in_(["owner", "gestionnaire"])
+            ).all()
+            if not links:
+                raise HTTPException(status_code=403, detail="Pas autorisé à ajouter un appartement")
     new_apartment = models.Apartment(**apartment.dict())
     db.add(new_apartment)
     db.commit()

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import BuildingInfoCard from '../components/BuildingInfoCard';
 import ApartmentCard from '../components/ApartmentCard';
+import AddApartmentCard from '../components/AddApartmentCard';
 
 export default function BuildingPage() {
   const { buildingId } = useParams();
@@ -15,9 +16,29 @@ export default function BuildingPage() {
       .then(res => res.json())
       .then(data => setBuilding(data));
 
-    fetch(`/api/buildings/${buildingId}/apartments`)
-      .then(res => res.json())
-      .then(data => setApartments(data));
+    const token =
+      localStorage.getItem('access_token') ||
+      sessionStorage.getItem('access_token');
+
+    fetch(`http://localhost:8000/buildings/${buildingId}/apartments`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then(async res => {
+        const text = await res.text();
+        try {
+          return JSON.parse(text);
+        } catch {
+          throw new Error("Réponse inattendue du serveur : " + text.slice(0, 100));
+        }
+      })
+      .then(data => setApartments(data))
+      .catch(err => {
+        setApartments([]);
+        if (err.message.startsWith("Réponse inattendue du serveur")) {
+          console.error("Réponse brute du serveur (copie/colle ce bloc pour le support) :", err.message);
+        }
+        alert(err.message);
+      });
   }, [buildingId]);
 
   const handleEdit = () => {
@@ -29,7 +50,7 @@ export default function BuildingPage() {
   };
 
   const handleCreateApartment = () => {
-    navigate(`/buildings/${buildingId}/apartments/create`);
+    navigate(`/buildings/${buildingId}/apartments/new`);
   };
 
   return (
@@ -66,26 +87,7 @@ export default function BuildingPage() {
             onClick={() => handleApartmentClick(apartment.id)}
           />
         ))}
-        <div
-          style={{
-            border: '2px dashed #bbb',
-            borderRadius: 8,
-            padding: 20,
-            background: '#f5f5f5',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            minHeight: 120,
-            minWidth: 180,
-            fontWeight: 'bold',
-            color: '#1976d2',
-            fontSize: 18,
-          }}
-          onClick={handleCreateApartment}
-        >
-          + Créer un appartement
-        </div>
+        <AddApartmentCard onClick={handleCreateApartment} />
       </div>
     </div>
   );

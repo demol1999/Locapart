@@ -10,6 +10,7 @@ import BuildingsPage from './pages/BuildingsPage';
 import BuildingCreatePage from './pages/BuildingCreatePage';
 import BuildingDetailPage from './pages/BuildingDetailPage';
 import BuildingPage from './pages/BuildingPage';
+import ApartmentCreatePage from './pages/ApartmentCreatePage';
 
 // Composant pour les routes protégées
 const ProtectedRoute = ({ children }) => {
@@ -61,6 +62,12 @@ function App() {
             <Route path="/buildings/:buildingId" element={
               <ProtectedRoute>
                 <BuildingPage />
+              </ProtectedRoute>
+            } />
+            {/* Création appartement */}
+            <Route path="/buildings/:buildingId/apartments/new" element={
+              <ProtectedRoute>
+                <ApartmentCreatePage />
               </ProtectedRoute>
             } />
             {/* Création immeuble */}
