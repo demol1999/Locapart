@@ -88,11 +88,19 @@ class ApartmentUserFullOut(BaseModel):
     class Config:
         orm_mode = True
 
+class PhotoCreate(BaseModel):
+    type: PhotoType
+    target_id: int
+    title: Optional[str] = None
+    description: Optional[str] = None
+
 class PhotoOut(BaseModel):
     id: int
     filename: str
     type: str
     created_at: datetime
+    title: Optional[str] = None
+    description: Optional[str] = None
 
     class Config:
         orm_mode = True

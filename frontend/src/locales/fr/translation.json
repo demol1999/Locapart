@@ -1,34 +1,95 @@
-
 {
-    "loginPage": {
-      "title": "Connectez-vous à Votre Compte",
-      "emailLabel": "Adresse e-mail",
-      "emailPlaceholder": "vous@exemple.com",
-      "passwordLabel": "Mot de passe",
-      "submitButton": "Se connecter",
-      "loadingButton": "Connexion...",
-      "noAccount": "Pas encore de compte ?",
-      "registerLink": "S'inscrire",
-      "error": {
-        "generic": "Échec de la connexion. Vérifiez vos identifiants et réessayez.",
-         "Incorrect email or password": "Email ou mot de passe incorrect."
-      }
-    },
-    "registerPage": {
-      "title": "Créer un Nouveau Compte",
-      "fullNameLabel": "Nom complet",
-      "fullNamePlaceholder": "Jean Dupont",
-      "emailLabel": "Adresse e-mail",
-      "emailPlaceholder": "vous@exemple.com",
-      "passwordLabel": "Mot de passe",
-      "submitButton": "Créer le compte",
-      "loadingButton": "Création du compte...",
-      "alreadyAccount": "Déjà un compte ?",
-      "loginLink": "Se connecter",
-      "successMessage": "Compte créé avec succès ! Redirection vers la connexion...",
-      "error": {
-        "generic": "Échec de l'inscription. Veuillez réessayer.",
-        "Email already registered": "Cette adresse e-mail est déjà enregistrée."
-      }
+  "login": "Se connecter",
+  "logout": "Se déconnecter",
+  "profile": "Mon Profil",
+  "loginPage": {
+    "title": "Connexion à votre compte",
+    "emailLabel": "Adresse email",
+    "emailPlaceholder": "vous@exemple.com",
+    "passwordLabel": "Mot de passe",
+    "submitButton": "Se connecter",
+    "loadingButton": "Connexion en cours...",
+    "rememberMe": "Rester connecté",
+    "noAccount": "Pas encore de compte ?",
+    "registerLink": "S'inscrire",
+    "error": {
+      "generic": "La connexion a échoué. Veuillez vérifier vos identifiants et réessayer.",
+      "invalidCredentials": "Email ou mot de passe incorrect."
     }
+  },
+  "registerPage": {
+    "streetNumberLabel": "Numéro de rue",
+    "streetNumberPlaceholder": "12",
+    "streetNameLabel": "Nom de la rue",
+    "streetNamePlaceholder": "Rue de la Paix",
+    "complementLabel": "Complément",
+    "complementPlaceholder": "Bâtiment A, étage 2",
+    "title": "Créer un nouveau compte",
+    "fullNameLabel": "Nom complet",
+    "fullNamePlaceholder": "Jean Dupont",
+    "firstNameLabel": "Prénom",
+    "firstNamePlaceholder": "Jean",
+    "lastNameLabel": "Nom",
+    "lastNamePlaceholder": "Dupont",
+    "emailLabel": "Adresse email",
+    "emailPlaceholder": "vous@exemple.com",
+    "phoneLabel": "Téléphone",
+    "phonePlaceholder": "+33 6 12 34 56 78",
+    "addressLabel": "Adresse",
+    "addressPlaceholder": "1 rue de la Paix",
+    "cityLabel": "Ville",
+    "cityPlaceholder": "Paris",
+    "postalCodeLabel": "Code postal",
+    "postalCodePlaceholder": "75000",
+    "countryLabel": "Pays",
+    "countryPlaceholder": "France",
+    "passwordLabel": "Mot de passe",
+    "passwordConfirmLabel": "Confirmer le mot de passe",
+    "submitButton": "Créer un compte",
+    "loadingButton": "Création du compte...",
+    "rememberMe": "Rester connecté",
+    "alreadyAccount": "Déjà un compte ?",
+    "loginLink": "Se connecter",
+    "successMessage": "Compte créé avec succès ! Redirection vers la connexion...",
+    "error": {
+      "generic": "L'inscription a échoué. Veuillez réessayer.",
+      "Email already registered": "Cette adresse email est déjà enregistrée.",
+      "passwordMismatch": "Les mots de passe ne correspondent pas",
+      "invalidPhoneNumber": "Numéro de téléphone invalide",
+      "invalidPostalCode": "Code postal invalide",
+      "requiredField": "Ce champ est requis"
+    }
+  },
+  "buildingForm": {
+    "title": "Créer un immeuble",
+    "name": "Nom de l'immeuble",
+    "streetNumber": "Numéro de rue",
+    "streetName": "Nom de la rue",
+    "complement": "Complément",
+    "postalCode": "Code postal",
+    "city": "Ville",
+    "country": "Pays",
+    "floors": "Nombre d'étages",
+    "isCopro": "Copropriété ?",
+    "create": "Créer",
+    "creating": "Création...",
+    "addPhoto": "Ajouter une photo",
+    "photoTitle": "Titre de la photo",
+    "photoDescription": "Description de la photo",
+    "success": "Immeuble créé avec succès !"
+  },
+  "profilePage": {
+    "title": "Mon Profil",
+    "personalInfo": "Informations personnelles",
+    "nameLabel": "Nom complet",
+    "emailLabel": "Adresse email",
+    "phoneLabel": "Téléphone",
+    "editButton": "Modifier",
+    "saveButton": "Enregistrer",
+    "cancelButton": "Annuler",
+    "updateSuccess": "Profil mis à jour avec succès",
+    "updateError": "Une erreur est survenue lors de la mise à jour du profil",
+    "updateProfile": "Mettre à jour le profil",
+    "changePassword": "Changer le mot de passe"
   }
+}

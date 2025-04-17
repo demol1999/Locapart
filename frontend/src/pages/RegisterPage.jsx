@@ -2,62 +2,52 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import apiClient from '../services/api'; // Importe l'instance axios configurée
+import { useAuth } from '../context/AuthContext';
+import apiClient from '../services/api';
+import RegisterForm from '../components/RegisterForm';
 
 function RegisterPage() {
   // Hooks pour traduction et navigation
+  const { login } = useAuth(); // Pour login auto
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  // États pour les champs, chargement, erreurs et succès
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState(''); // Ajout du nom complet
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false); // État pour le message de succès
+  const [success, setSuccess] = useState(false);
 
-  // Gestionnaire de soumission du formulaire
-  const handleRegister = async (event) => {
-    event.preventDefault();
+
+  const handleRegister = async (form, localError) => {
+    if (localError) {
+      setError(localError);
+      return;
+    }
     setLoading(true);
     setError(null);
-    setSuccess(false); // Réinitialise le succès
-
-    // Prépare les données pour l'API (endpoint /register attend du JSON)
-    const userData = {
-      email: email,
-      password: password,
-      full_name: fullName, // Assure-toi que la clé correspond au schéma Pydantic UserCreate
-    };
-
+    setSuccess(false);
     try {
-      // Appel à l'API d'inscription
-      // L'endpoint /register renvoie généralement l'utilisateur créé (statut 200 ou 201)
-      await apiClient.post('/register', userData);
-
-      // En cas de succès :
-      setSuccess(true); // Affiche le message de succès
-      // Optionnel: rediriger vers la page de connexion après un délai
-      setTimeout(() => {
-        navigate('/login');
-      }, 3000); // Redirige après 3 secondes
-
+      await apiClient.post('/signup/', form);
+      // Connexion automatique après inscription
+      const loginSuccess = await login({ email: form.email, password: form.password });
+      if (loginSuccess) {
+        navigate('/');
+        return;
+      } else {
+        setSuccess(true); // Affiche le message de succès si login auto échoue
+      }
     } catch (err) {
-      // En cas d'erreur :
-      console.error("Erreur d'inscription:", err);
       if (err.response && err.response.data && err.response.data.detail) {
-        // Gère les erreurs spécifiques (ex: email déjà utilisé)
         setError(typeof err.response.data.detail === 'string'
           ? err.response.data.detail
-          : JSON.stringify(err.response.data.detail)); // Affiche les détails si complexe
+          : JSON.stringify(err.response.data.detail));
       } else {
-        setError(t('registerPage.error.generic')); // Message générique
+        setError(t('registerPage.error.generic'));
       }
     } finally {
-      setLoading(false); // Arrête le chargement
+      setLoading(false);
     }
   };
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -75,88 +65,8 @@ function RegisterPage() {
 
         {/* Affiche le formulaire seulement si l'inscription n'est pas réussie */}
         {!success && (
-          <form className="space-y-6" onSubmit={handleRegister}>
-            {/* Champ Nom Complet */}
-            <div>
-              <label
-                htmlFor="fullName"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                {t('registerPage.fullNameLabel')} {/* Traduction */}
-              </label>
-              <input
-                id="fullName"
-                name="fullName"
-                type="text"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="block w-full px-3 py-2 mt-1 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500"
-                placeholder={t('registerPage.fullNamePlaceholder')}
-              />
-            </div>
-
-            {/* Champ Email */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                {t('registerPage.emailLabel')} {/* Traduction */}
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="block w-full px-3 py-2 mt-1 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500"
-                placeholder={t('registerPage.emailPlaceholder')}
-              />
-            </div>
-
-            {/* Champ Mot de passe */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                {t('registerPage.passwordLabel')} {/* Traduction */}
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password" // Important pour ne pas pré-remplir avec un mdp existant
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="block w-full px-3 py-2 mt-1 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500"
-                placeholder="••••••••"
-              />
-            </div>
-
-            {/* Affichage des erreurs */}
-            {error && (
-              <p className="text-sm text-center text-red-600 dark:text-red-400">
-                 {typeof error === 'string' ? t(error, { defaultValue: error }) : t('registerPage.error.generic')}
-              </p>
-            )}
-
-            {/* Bouton de soumission */}
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed dark:focus:ring-offset-gray-800"
-              >
-                {loading ? t('registerPage.loadingButton') : t('registerPage.submitButton')} {/* Traduction */}
-              </button>
-            </div>
-          </form>
-        )} {/* Fin du formulaire conditionnel */}
+          <RegisterForm onSubmit={handleRegister} loading={loading} error={error && t(error, { defaultValue: error })} />
+        )}
 
         {/* Lien vers la page de connexion */}
         <p className="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">

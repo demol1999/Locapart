@@ -47,6 +47,7 @@ class Building(Base):
     country = Column(String)
     floors = Column(Integer)
     is_copro = Column(Boolean)
+    user_id = Column(Integer, ForeignKey("user_auth.id"))  # Créateur de l'immeuble
 
     apartments = relationship("Apartment", back_populates="building")
     photos = relationship("Photo", back_populates="building")
@@ -81,6 +82,8 @@ class Photo(Base):
     id = Column(Integer, primary_key=True, index=True)
     filename = Column(String)
     type = Column(Enum(PhotoType))
+    title = Column(String, nullable=True)
+    description = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     building_id = Column(Integer, ForeignKey("buildings.id"), nullable=True)

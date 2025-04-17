@@ -2,19 +2,23 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import apiClient from '../services/api'; // Importe l'instance axios configurée
+import { useAuth } from '../context/AuthContext';
+import apiClient from '../services/api';
 
 function LoginPage() {
   // Hook pour la traduction
   const { t } = useTranslation();
   // Hook pour la navigation programmatique
   const navigate = useNavigate();
+  // Utilisation du contexte d'authentification
+  const { login } = useAuth();
 
   // États pour les champs du formulaire, le chargement et les erreurs
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [rememberMe, setRememberMe] = useState(false);
 
   // Gestionnaire de soumission du formulaire
   const handleLogin = async (event) => {
@@ -23,30 +27,15 @@ function LoginPage() {
     setError(null); // Réinitialise les erreurs précédentes
 
     try {
-      // Prépare les données pour l'API (FastAPI attend souvent du 'x-www-form-urlencoded' pour le login OAuth2)
-      // Vérifie ton endpoint /login dans FastAPI. S'il attend du JSON, utilise { email, password } directement.
-      // Si c'est bien OAuth2PasswordRequestForm, il faut form-data.
-      const formData = new FormData();
-      formData.append('username', email); // FastAPI OAuth2 utilise 'username' par défaut
-      formData.append('password', password);
-
-      // Appel à l'API de connexion via axios
-      const response = await apiClient.post('/login', formData, {
-         // Important: Spécifier le Content-Type pour FormData si nécessaire par FastAPI OAuth2
-         headers: {
-           'Content-Type': 'application/x-www-form-urlencoded',
-         },
-       });
-
-
-      // En cas de succès :
-      const { access_token } = response.data; // Récupère le token JWT
-      // Stocke le token (localStorage est simple mais a des implications de sécurité - XSS)
-      // Pour une meilleure sécurité, envisage des cookies HttpOnly côté backend.
-      localStorage.setItem('authToken', access_token);
-
-      // Redirige l'utilisateur vers le tableau de bord (ou autre page protégée)
-      navigate('/dashboard'); // Assure-toi que cette route existe ou adapte la destination
+      // Utilise le contexte d'authentification pour la connexion
+      const success = await login({ email, password, rememberMe });
+      
+      if (success) {
+        // Redirige vers la mosaïque des immeubles après connexion réussie
+        navigate('/buildings');
+      } else {
+        setError(t('loginPage.error.invalidCredentials'));
+      }
 
     } catch (err) {
       // En cas d'erreur :
@@ -70,6 +59,20 @@ function LoginPage() {
           {t('loginPage.title')} {/* Clé de traduction pour le titre */}
         </h2>
         <form className="space-y-6" onSubmit={handleLogin}>
+          {/* Case à cocher Rester connecté */}
+          <div className="flex items-center">
+            <input
+              id="rememberMe"
+              name="rememberMe"
+              type="checkbox"
+              checked={rememberMe}
+              onChange={e => setRememberMe(e.target.checked)}
+              className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+            />
+            <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
+              {t('loginPage.rememberMe')}
+            </label>
+          </div>
           {/* Champ Email */}
           <div>
             <label

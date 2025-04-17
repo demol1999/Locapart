@@ -1,65 +1,103 @@
 // src/App.jsx
-import React, { Suspense } from 'react'; // Import Suspense pour i18next
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { Suspense } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
+import Navbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-// Importe d'autres pages/composants ici si nécessaire
-// import DashboardPage from './pages/DashboardPage'; // Exemple
+import ProfilePage from './pages/ProfilePage';
+import BuildingsPage from './pages/BuildingsPage';
+import BuildingCreatePage from './pages/BuildingCreatePage';
+import BuildingDetailPage from './pages/BuildingDetailPage';
+import BuildingPage from './pages/BuildingPage';
 
-// Composant simple pour simuler une page protégée (sera amélioré plus tard)
+// Composant pour les routes protégées
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('authToken');
-  return token ? children : <Navigate to="/login" replace />;
+  const { user } = useAuth();
+  return user ? children : <Navigate to="/login" replace />;
 };
 
-// Composant simple pour simuler une page publique (redirige si connecté)
+// Composant pour les routes publiques
 const PublicRoute = ({ children }) => {
-    const token = localStorage.getItem('authToken');
-    // Si l'utilisateur est connecté et essaie d'accéder à Login/Register, redirige vers le dashboard
-    // Tu peux ajuster ce comportement si tu veux autoriser l'accès même connecté
-    return !token ? children : <Navigate to="/dashboard" replace />;
+  const { user } = useAuth();
+  return !user ? children : <Navigate to="/" replace />;
 };
-
 
 function App() {
+  const { user } = useAuth();
+
   return (
-    // Suspense est nécessaire pour le chargement des traductions i18next
-    <Suspense fallback={<div>Loading translations...</div>}>
-      <Router>
-        <Routes>
-          {/* Routes Publiques (Login, Register) */}
-          <Route path="/login" element={
-            <PublicRoute>
-              <LoginPage />
-            </PublicRoute>
-          } />
-          <Route path="/register" element={
-            <PublicRoute>
-              <RegisterPage />
-            </PublicRoute>
-          } />
+    <Suspense fallback={<div>Chargement...</div>}>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Navbar />
+        <main className="pt-16"> {/* Espace pour la navbar fixe */}
+          <Routes>
+            {/* Routes publiques */}
+            <Route path="/login" element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            } />
+            <Route path="/register" element={
+              <PublicRoute>
+                <RegisterPage />
+              </PublicRoute>
+            } />
 
-          {/* Routes Protégées (Exemple: Dashboard) */}
-          {/* Décommente et crée cette page quand tu seras prêt */}
-          {/*
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          } />
-          */}
+            {/* Routes protégées */}
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            } />
 
-          {/* Redirection par défaut */}
-          {/* Si l'utilisateur est connecté, va au dashboard, sinon au login */}
-          <Route path="/" element={
-             localStorage.getItem('authToken') ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
-           } />
+            {/* Immeubles - mosaïque */}
+            <Route path="/buildings" element={
+              <ProtectedRoute>
+                <BuildingsPage />
+              </ProtectedRoute>
+            } />
+            {/* Détail immeuble */}
+            <Route path="/buildings/:buildingId" element={
+              <ProtectedRoute>
+                <BuildingPage />
+              </ProtectedRoute>
+            } />
+            {/* Création immeuble */}
+            <Route path="/buildings/new" element={
+              <ProtectedRoute>
+                <BuildingCreatePage />
+              </ProtectedRoute>
+            } />
+            {/* Détail immeuble */}
+            <Route path="/buildings/:id" element={
+              <ProtectedRoute>
+                <BuildingDetailPage />
+              </ProtectedRoute>
+            } />
 
-          {/* Route pour gérer les chemins non trouvés */}
-          <Route path="*" element={<div>404 - Page Not Found</div>} /> {/* Tu peux créer une page 404 plus stylée */}
+            {/* Page d'accueil */}
+            <Route path="/" element={
+              user ? <Navigate to="/buildings" replace /> : (
+                <div className="container mx-auto px-4 py-8">
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    Bienvenue sur LocAppart
+                  </h1>
+                </div>
+              )
+            } />
 
-        </Routes>
-      </Router>
+            {/* Route pour gérer les chemins non trouvés */}
+            <Route path="*" element={
+              <div className="container mx-auto px-4 py-8 text-center">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  404 - Page non trouvée
+                </h1>
+              </div>
+            } />
+          </Routes>
+        </main>
+      </div>
     </Suspense>
   );
 }

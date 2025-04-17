@@ -18,6 +18,16 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Autorise le frontend en dev
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
@@ -57,10 +67,15 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     return {"access_token": token, "token_type": "bearer"}
 
 
+# ---------------------- USER PROFILE ----------------------
+@app.get("/me", response_model=schemas.UserOut)
+def get_me(current_user: models.UserAuth = Depends(get_current_user)):
+    return current_user
+
 # ---------------------- BUILDINGS ----------------------
 @app.post("/buildings/", response_model=schemas.BuildingOut)
 def create_building(building: schemas.BuildingCreate, db: Session = Depends(get_db), current_user: models.UserAuth = Depends(get_current_user)):
-    new_building = models.Building(**building.dict())
+    new_building = models.Building(**building.dict(), user_id=current_user.id)
     db.add(new_building)
     db.commit()
     db.refresh(new_building)
@@ -69,10 +84,16 @@ def create_building(building: schemas.BuildingCreate, db: Session = Depends(get_
 
 @app.get("/buildings/", response_model=List[schemas.BuildingOut])
 def get_my_buildings(db: Session = Depends(get_db), current_user: models.UserAuth = Depends(get_current_user)):
+    # Immeubles où l'utilisateur a un appartement
     links = db.query(models.ApartmentUserLink).filter(models.ApartmentUserLink.user_id == current_user.id).all()
     apartment_ids = [link.apartment_id for link in links]
     building_ids = db.query(models.Apartment.building_id).filter(models.Apartment.id.in_(apartment_ids)).distinct()
-    buildings = db.query(models.Building).filter(models.Building.id.in_(building_ids)).all()
+    # Immeubles créés par l'utilisateur
+    my_buildings = db.query(models.Building).filter(models.Building.user_id == current_user.id)
+    # Union des deux
+    buildings = db.query(models.Building).filter(
+        (models.Building.id.in_(building_ids)) | (models.Building.user_id == current_user.id)
+    ).all()
     return buildings
 
 
@@ -206,6 +227,8 @@ def upload_photo(
     file: UploadFile = File(...),
     type: models.PhotoType = Form(...),
     target_id: int = Form(...),
+    title: str = Form(None),
+    description: str = Form(None),
     db: Session = Depends(get_db),
     current_user: models.UserAuth = Depends(get_current_user)
 ):
@@ -215,7 +238,7 @@ def upload_photo(
     file_path = os.path.join(UPLOAD_DIR, unique_name)
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
-    photo = models.Photo(filename=file_path, type=type)
+    photo = models.Photo(filename=file_path, type=type, title=title, description=description)
     if type == models.PhotoType.building:
         if not db.query(models.Building).filter_by(id=target_id).first():
             raise HTTPException(status_code=404, detail="Immeuble non trouvé")
