@@ -29,7 +29,14 @@ const BuildingsPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
       <h2 className="text-2xl font-bold mb-6">Mes immeubles</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+      <div
+        className="building-mosaic"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: 24,
+        }}
+      >
         {buildings.map((building) => (
           <BuildingCard
             key={building.id}

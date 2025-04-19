@@ -1,0 +1,72 @@
+# CONTEXT GLOBAL DU PROJET LOCAPART
+
+## Structure du projet
+
+- **frontend/** : Application React (interface utilisateur)
+  - `src/pages/` : Pages principales (ex : LoginPage.jsx, BuildingPage.jsx...)
+  - `src/components/` : Composants réutilisables (cards, boutons...)
+  - `src/context/` : Contexts React (authentification, etc.)
+  - `src/services/` : Accès API, helpers
+- **backend/** : Application FastAPI (API REST, logique métier)
+  - `main.py` : Routes API principales
+  - `models.py` : Modèles SQLAlchemy (BDD)
+  - `schemas.py` : Schémas Pydantic (validation)
+  - `database.py` : Connexion à la base
+- **context.txt** : Ce fichier (guide global, conventions, organisation)
+- **tache.txt** : Suivi des tâches (TODO, done)
+
+## Règles et conventions de code
+
+- **Nommer clairement** les fichiers, fonctions, variables (en anglais, camelCase côté JS, snake_case côté Python)
+- **Séparer** la logique métier (backend) de l’affichage (frontend)
+- **Respecter la structure** du projet (pages, composants, context séparés)
+- **Utiliser les hooks React** pour la logique d’état côté frontend
+- **Protéger les routes sensibles** côté backend avec une vérification d’authentification
+- **Utiliser le header Authorization** (Bearer token) pour toutes les requêtes API nécessitant l’auth
+- **Gérer les erreurs** côté frontend (affichage UX) et backend (messages explicites)
+- **Documenter** chaque fonction complexe ou endpoint dans le code
+- **Respecter la cohérence UX/UI** : design homogène, boutons et cartes réutilisables
+- **Pas de mot de passe ou secret en clair** dans le code
+- **Pas de commit de données sensibles**
+
+## Bonnes pratiques à suivre
+
+- Toujours tester après chaque modification importante (frontend ET backend)
+- Ajouter un commentaire pour toute logique métier non triviale
+- Garder le code DRY (éviter les duplications)
+- Préférer les hooks React personnalisés pour la logique partagée
+- Utiliser des messages d’erreur détaillés pour faciliter le debug
+- Mettre à jour context.txt et tache.txt à chaque évolution majeure
+
+## Description rapide des fichiers clés
+
+- `frontend/src/pages/BuildingPage.jsx` : Affiche les détails d’un immeuble et ses appartements
+- `frontend/src/pages/ApartmentCreatePage.jsx` : Formulaire de création d’un appartement
+- `frontend/src/context/AuthContext.jsx` : Gestion de l’authentification (login, auto-login, logout)
+- `backend/main.py` : Toutes les routes API principales, logique d’accès
+- `backend/models.py` : Définition des tables et relations
+- `backend/schemas.py` : Validation des données en entrée/sortie
+
+---
+
+**À suivre pour tout nouveau dev ou nouvelle règle : compléter ce fichier !**
+
+
+## Exigences transverses
+
+- Le projet doit être conçu **API First** : toute fonctionnalité doit d'abord être pensée côté API (backend), puis exposée au frontend.
+- L'application doit être **facilement traduisible** : utiliser des fichiers de traduction (ex : locales/en/translation.json, locales/fr/translation.json) et une structure i18n (ex : react-i18next).
+- Le frontend doit permettre un **theming facile** : système de thèmes/couleurs personnalisables (ex : variables CSS, context ThemeProvider, etc.).
+- L'interface doit être **responsive** : adaptée mobile, tablette et desktop (utiliser Flexbox, Grid, media queries, etc.).
+
+
+- Le propriétaire de l’immeuble (building.user_id) peut ajouter des appartements à tout moment, même si des appartements existent déjà.
+- Seuls les propriétaires ou gestionnaires d’un appartement peuvent ajouter des appartements dans un immeuble qui a déjà des appartements, sauf si on est propriétaire de l’immeuble.
+- Lors de la connexion avec "Rester connecté", le token est stocké dans un cookie persistant pour l’auto-login.
+- Au démarrage, si aucun token n’est trouvé dans localStorage/sessionStorage mais qu’un cookie est présent, le token est restauré automatiquement.
+- La page de création d’appartement affiche les messages d’erreur détaillés du backend.
+- La page des appartements d’un immeuble affiche tous les appartements si l’utilisateur est propriétaire de l’immeuble, sinon seulement ceux où il est lié via ApartmentUserLink.
+- Les routes API nécessitent l’envoi du token d’authentification dans le header Authorization.
+- Les fonctions d’authentification ne font plus appel à setAuthToken/clearAuthToken, tout est géré via storage/cookie.
+- Les boutons et cartes de création utilisent un design cohérent (AddApartmentCard, etc.).
+- Toute modification de la logique d’accès ou d’affichage doit respecter la cohérence UX/UI du projet.

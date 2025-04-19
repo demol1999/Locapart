@@ -1,0 +1,15 @@
+# TÂCHES À FAIRE ET PASSÉES
+
+- [ ] Ajouter la gestion des rôles avancée (ex : gestionnaire, copropriétaire, etc.)
+- [ ] Mettre en place un proxy propre pour le frontend (Vite ou CRA) pour simplifier les appels API
+- [ ] Améliorer la gestion des erreurs réseau côté frontend (affichage UX)
+- [ ] Ajouter une page de gestion des utilisateurs liés à un appartement
+- [ ] Permettre l’édition/suppression d’un appartement
+- [ ] Ajouter la gestion et l’affichage des photos pour les appartements et immeubles
+- [ ] Mettre en place un système de rafraîchissement de token (refresh token)
+- [ ] Ajouter des tests automatisés (backend et frontend)
+- [ ] Améliorer la documentation technique (README, API, etc.)
+- [x] Afficher les messages d’erreur détaillés lors de la création d’appartement
+- [x] Permettre au propriétaire de l’immeuble de voir tous les appartements
+- [x] Auto-login via cookie si "Rester connecté" est coché
+- [x] Correction des imports et gestion du token côté AuthContext

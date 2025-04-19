@@ -31,7 +31,7 @@ function App() {
     <Suspense fallback={<div>Chargement...</div>}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <Navbar />
-        <main className="pt-16"> {/* Espace pour la navbar fixe */}
+        <main style={{ paddingTop: '1cm' }}> {/* Espace pour la navbar fixe (1cm, identique à la hauteur de la navbar) */}
           <Routes>
             {/* Routes publiques */}
             <Route path="/login" element={

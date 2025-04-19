@@ -9,10 +9,14 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUser = useCallback(async () => {
     try {
+      const token = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+      console.log('[fetchUser] Token utilisé pour /me:', token);
       const response = await apiClient.get('/me');
+      console.log('[fetchUser] Réponse /me:', response.status, response.data);
       setUser(response.data);
       return response.data;
     } catch (error) {
+      console.error('[fetchUser] Erreur /me:', error);
       setUser(null);
       return null;
     }
@@ -28,19 +32,26 @@ export const AuthProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       });
       const { access_token } = response.data;
+      console.log('[login] Token reçu:', access_token);
       // Gestion du stockage du token selon rememberMe
       if (credentials.rememberMe) {
         localStorage.setItem('access_token', access_token);
         sessionStorage.removeItem('access_token');
+        // Stocke aussi dans un cookie persistant (30 jours)
+        document.cookie = `access_token=${access_token}; path=/; max-age=${60 * 60 * 24 * 30}`;
+        console.log('[login] Token stocké dans localStorage et cookie');
       } else {
         sessionStorage.setItem('access_token', access_token);
         localStorage.removeItem('access_token');
+        // Supprime le cookie si présent
+        document.cookie = 'access_token=; path=/; max-age=0';
+        console.log('[login] Token stocké dans sessionStorage');
       }
 
       await fetchUser();
       return true;
     } catch (error) {
-      console.error('Erreur de connexion:', error);
+      console.error('[login] Erreur de connexion:', error);
       setUser(null);
       return false;
     } finally {
@@ -69,10 +80,31 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Au démarrage, cherche le token dans localStorage puis sessionStorage
+  // Si aucun, tente de le récupérer depuis le cookie (auto-login)
   React.useEffect(() => {
-    const storedToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+    let storedToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+    if (!storedToken) {
+      // Cherche dans les cookies
+      const match = document.cookie.match(/(?:^|; )access_token=([^;]+)/);
+      if (match) {
+        storedToken = match[1];
+        localStorage.setItem('access_token', storedToken); // On restaure dans le localStorage
+      }
+    }
     if (storedToken) {
-      fetchUser();
+      // Ajoute le token à l'apiClient si besoin
+      if (apiClient && apiClient.defaults) {
+        apiClient.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+      }
+      fetchUser().then(user => {
+        if (!user) {
+          // Token invalide : déconnexion stricte
+          localStorage.removeItem('access_token');
+          sessionStorage.removeItem('access_token');
+          document.cookie = 'access_token=; path=/; max-age=0';
+          setUser(null);
+        }
+      });
     }
   }, [fetchUser]);
 
