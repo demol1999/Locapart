@@ -68,36 +68,55 @@ const Navbar = () => {
           </button>
           {user ? (
             <>
-              <button
-                ref={menuRef}
-                id="menuButton"
-                className="flex items-center px-2 py-1 rounded-full bg-blue-500 hover:bg-blue-600 text-white transition-colors text-sm font-medium"
-                aria-label="Menu profil"
-                onClick={(e) => {
-                  setOpenMenu((v) => !v);
-                  e.stopPropagation();
-                }}
-                type="button"
-                style={{ userSelect: 'none' }}
-              >
-                {user.first_name} {user.last_name}
-              </button>
-              {/* Dropdown logout menu */}
-              {openMenu && (
-                <div
-                  id="dropdownMenu"
-                  className="absolute right-0 mt-2 w-40 py-2 bg-white dark:bg-gray-700 rounded-lg shadow-xl z-50 border border-gray-200 dark:border-gray-600 animate-dropdown"
-                  style={{ minWidth: '8rem' }}
+              {/* Nouveau menu déroulant profil/déconnexion (style inline, centré, inspiré du code fourni) */}
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <button
+                  ref={menuRef}
+                  onClick={() => setOpenMenu((prev) => !prev)}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#f0f0f0',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontWeight: 500,
+                  }}
                 >
-                  <button
-                    id="logoutBtn"
-                    onClick={logout}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-600"
+                  {user.first_name} {user.last_name}
+                </button>
+                {openMenu && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 8px)',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      backgroundColor: 'white',
+                      border: '1px solid #ccc',
+                      borderRadius: '6px',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                      padding: '8px 12px',
+                      zIndex: 1000,
+                      whiteSpace: 'nowrap',
+                    }}
                   >
-                    {t('logout')}
-                  </button>
-                </div>
-              )}
+                    <button
+                      onClick={logout}
+                      style={{
+                        backgroundColor: '#f44336',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 12px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontWeight: 500,
+                      }}
+                    >
+                      {t('logout')}
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <Link 
