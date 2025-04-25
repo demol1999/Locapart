@@ -2,7 +2,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = "postgresql://fastapi_user:password@localhost/fastapi_db"
+# Utilisation de MariaDB/MySQL avec le driver PyMySQL
+# Syntaxe : mysql+pymysql://<utilisateur>:<motdepasse>@<host>/<nom_base>
+DATABASE_URL = "mysql+pymysql://maria_user:monpassword@localhost/locappart_db"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

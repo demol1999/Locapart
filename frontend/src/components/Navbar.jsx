@@ -48,21 +48,43 @@ const Navbar = () => {
         </Link>
         {/* Bloc actions à droite : langues + connexion/profil */}
         <div className="flex flex-row items-center gap-1 ml-auto min-w-0 overflow-x-auto whitespace-nowrap">
-          <button 
-            onClick={() => changeLang('fr')} 
-            className={`text-lg px-2 py-1 rounded transition-all ${i18n.language === 'fr' ? 'bg-blue-600 text-white font-bold border border-blue-700' : 'hover:opacity-80'}`}
+          <button
+            onClick={() => changeLang('fr')}
             aria-label="Changer la langue en français"
             aria-pressed={i18n.language === 'fr'}
-            style={{ lineHeight: 1 }}
+            style={{
+              fontSize: '1.25rem',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              marginRight: '2px',
+              backgroundColor: i18n.language === 'fr' ? '#2563eb' : '#f0f0f0',
+              color: i18n.language === 'fr' ? 'white' : '#222',
+              fontWeight: i18n.language === 'fr' ? 700 : 400,
+              border: i18n.language === 'fr' ? '2px solid #1d4ed8' : '1px solid #ccc',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              outline: 'none',
+            }}
           >
             🇫🇷
           </button>
-          <button 
-            onClick={() => changeLang('en')} 
-            className={`text-lg px-2 py-1 rounded transition-all ${i18n.language === 'en' ? 'bg-blue-600 text-white font-bold border border-blue-700' : 'hover:opacity-80'}`}
+          <button
+            onClick={() => changeLang('en')}
             aria-label="Change language to English"
             aria-pressed={i18n.language === 'en'}
-            style={{ lineHeight: 1 }}
+            style={{
+              fontSize: '1.25rem',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              marginLeft: '2px',
+              backgroundColor: i18n.language === 'en' ? '#2563eb' : '#f0f0f0',
+              color: i18n.language === 'en' ? 'white' : '#222',
+              fontWeight: i18n.language === 'en' ? 700 : 400,
+              border: i18n.language === 'en' ? '2px solid #1d4ed8' : '1px solid #ccc',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              outline: 'none',
+            }}
           >
             🇬🇧
           </button>
