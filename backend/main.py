@@ -77,7 +77,117 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 def get_me(current_user: models.UserAuth = Depends(get_current_user)):
     return current_user
 
+# ---------------------- COPROPRIÉTÉS ----------------------
+
+@app.post("/copros/", response_model=schemas.CoproOut)
+def create_copro(copro: schemas.CoproCreate, db: Session = Depends(get_db), current_user: models.UserAuth = Depends(get_current_user)):
+    copro_obj = models.Copro(**copro.dict())
+    db.add(copro_obj)
+    db.commit()
+    db.refresh(copro_obj)
+    return copro_obj
+
+@app.get("/copros/", response_model=List[schemas.CoproOut])
+def list_copros(db: Session = Depends(get_db), current_user: models.UserAuth = Depends(get_current_user)):
+    return db.query(models.Copro).all()
+
+@app.get("/copros/{copro_id}", response_model=schemas.CoproOut)
+def get_copro(copro_id: int, db: Session = Depends(get_db), current_user: models.UserAuth = Depends(get_current_user)):
+    copro = db.query(models.Copro).filter(models.Copro.id == copro_id).first()
+    if not copro:
+        raise HTTPException(status_code=404, detail="Copropriété introuvable")
+    return copro
+
+@app.put("/copros/{copro_id}", response_model=schemas.CoproOut)
+def update_copro(copro_id: int, copro: schemas.CoproUpdate, db: Session = Depends(get_db), current_user: models.UserAuth = Depends(get_current_user)):
+    copro_obj = db.query(models.Copro).filter(models.Copro.id == copro_id).first()
+    if not copro_obj:
+        raise HTTPException(status_code=404, detail="Copropriété introuvable")
+    for key, value in copro.dict(exclude_unset=True).items():
+        setattr(copro_obj, key, value)
+    db.commit()
+    db.refresh(copro_obj)
+    return copro_obj
+
+@app.delete("/copros/{copro_id}")
+def delete_copro(copro_id: int, db: Session = Depends(get_db), current_user: models.UserAuth = Depends(get_current_user)):
+    copro_obj = db.query(models.Copro).filter(models.Copro.id == copro_id).first()
+    if not copro_obj:
+        raise HTTPException(status_code=404, detail="Copropriété introuvable")
+    db.delete(copro_obj)
+    db.commit()
+    return {"ok": True}
+
+# ---------------------- SYNDICAT COPRO ----------------------
+
+@app.post("/copros/{copro_id}/syndicat", response_model=schemas.SyndicatCoproOut)
+def create_syndicat_copro(copro_id: int, syndicat: schemas.SyndicatCoproCreate, db: Session = Depends(get_db), current_user: models.UserAuth = Depends(get_current_user)):
+    if db.query(models.SyndicatCopro).filter(models.SyndicatCopro.copro_id == copro_id).first():
+        raise HTTPException(status_code=400, detail="Syndicat déjà existant pour cette copropriété")
+    syndicat_obj = models.SyndicatCopro(**syndicat.dict(), copro_id=copro_id, user_id=current_user.id)
+    db.add(syndicat_obj)
+    db.commit()
+    db.refresh(syndicat_obj)
+    return syndicat_obj
+
+@app.get("/copros/{copro_id}/syndicat", response_model=schemas.SyndicatCoproOut)
+def get_syndicat_copro(copro_id: int, db: Session = Depends(get_db), current_user: models.UserAuth = Depends(get_current_user)):
+    syndicat = db.query(models.SyndicatCopro).filter(models.SyndicatCopro.copro_id == copro_id).first()
+    if not syndicat:
+        raise HTTPException(status_code=404, detail="Syndicat introuvable")
+    return syndicat
+
+@app.put("/copros/{copro_id}/syndicat", response_model=schemas.SyndicatCoproOut)
+def update_syndicat_copro(copro_id: int, syndicat: schemas.SyndicatCoproUpdate, db: Session = Depends(get_db), current_user: models.UserAuth = Depends(get_current_user)):
+    syndicat_obj = db.query(models.SyndicatCopro).filter(models.SyndicatCopro.copro_id == copro_id).first()
+    if not syndicat_obj:
+        raise HTTPException(status_code=404, detail="Syndicat introuvable")
+    for key, value in syndicat.dict(exclude_unset=True).items():
+        setattr(syndicat_obj, key, value)
+    db.commit()
+    db.refresh(syndicat_obj)
+    return syndicat_obj
+
+# Liste de tous les syndicats de copropriété
+@app.get("/syndicats_copro/", response_model=List[schemas.SyndicatCoproOut])
+def list_syndicats_copro(db: Session = Depends(get_db), current_user: models.UserAuth = Depends(get_current_user)):
+    # Syndicats créés par l'utilisateur
+    syndicats_user = db.query(models.SyndicatCopro).filter(models.SyndicatCopro.user_id == current_user.id)
+    # Copros visibles par l'utilisateur
+    # 1. Immeubles créés par l'utilisateur
+    my_buildings = db.query(models.Building).filter(models.Building.user_id == current_user.id).all()
+    copro_ids_from_buildings = [b.copro_id for b in my_buildings if b.copro_id]
+    # 2. Copros où l'utilisateur est owner/gestionnaire d'au moins un appartement
+    links = db.query(models.ApartmentUserLink).filter(models.ApartmentUserLink.user_id == current_user.id, models.ApartmentUserLink.role.in_(["owner","gestionnaire"]))
+    apartment_ids = [l.apartment_id for l in links]
+    building_ids = db.query(models.Apartment.building_id).filter(models.Apartment.id.in_(apartment_ids)).distinct()
+    copros_from_apartments = db.query(models.Building.copro_id).filter(models.Building.id.in_(building_ids)).distinct()
+    copro_ids_from_apartments = [c[0] for c in copros_from_apartments if c[0]]
+    # Unifie les copro_id
+    copro_ids = set(copro_ids_from_buildings) | set(copro_ids_from_apartments)
+    syndicats_copros = db.query(models.SyndicatCopro).filter(models.SyndicatCopro.copro_id.in_(copro_ids))
+    # Union sans doublons
+    syndicats = syndicats_user.union(syndicats_copros).all()
+    return syndicats
+
+@app.delete("/copros/{copro_id}/syndicat")
+def delete_syndicat_copro(copro_id: int, db: Session = Depends(get_db), current_user: models.UserAuth = Depends(get_current_user)):
+    syndicat_obj = db.query(models.SyndicatCopro).filter(models.SyndicatCopro.copro_id == copro_id).first()
+    if not syndicat_obj:
+        raise HTTPException(status_code=404, detail="Syndicat introuvable")
+    db.delete(syndicat_obj)
+    db.commit()
+    return {"ok": True}
+
 # ---------------------- BUILDINGS ----------------------
+
+@app.get("/buildings/{building_id}", response_model=schemas.BuildingOut)
+def get_building(building_id: int, db: Session = Depends(get_db), current_user: models.UserAuth = Depends(get_current_user)):
+    building = db.query(models.Building).filter(models.Building.id == building_id).first()
+    if not building:
+        raise HTTPException(status_code=404, detail="Immeuble introuvable")
+    return building
+
 @app.post("/buildings/", response_model=schemas.BuildingOut)
 def create_building(building: schemas.BuildingCreate, db: Session = Depends(get_db), current_user: models.UserAuth = Depends(get_current_user)):
     new_building = models.Building(**building.dict(), user_id=current_user.id)

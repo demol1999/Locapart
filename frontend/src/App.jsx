@@ -8,9 +8,12 @@ import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import BuildingsPage from './pages/BuildingsPage';
 import BuildingCreatePage from './pages/BuildingCreatePage';
-import BuildingDetailPage from './pages/BuildingDetailPage';
 import BuildingPage from './pages/BuildingPage';
 import ApartmentCreatePage from './pages/ApartmentCreatePage';
+import ApartmentDetails from './pages/ApartmentDetails';
+import CoproPage from './pages/CoproPage';
+import SyndicatCreatePage from './pages/SyndicatCreatePage';
+import CoproCreatePage from './pages/CoproCreatePage';
 
 // Composant pour les routes protégées
 const ProtectedRoute = ({ children }) => {
@@ -70,16 +73,28 @@ function App() {
                 <ApartmentCreatePage />
               </ProtectedRoute>
             } />
+            {/* Détail appartement */}
+            <Route path="/apartments/:apartmentId" element={
+              <ProtectedRoute>
+                <ApartmentDetails />
+              </ProtectedRoute>
+            } />
+            {/* Détail copropriété */}
+            <Route path="/copros/:coproId" element={
+              <ProtectedRoute>
+                <CoproPage />
+              </ProtectedRoute>
+            } />
+            {/* Création copropriété */}
+            <Route path="/copros/new" element={
+              <ProtectedRoute>
+                <CoproCreatePage />
+              </ProtectedRoute>
+            } />
             {/* Création immeuble */}
             <Route path="/buildings/new" element={
               <ProtectedRoute>
                 <BuildingCreatePage />
-              </ProtectedRoute>
-            } />
-            {/* Détail immeuble */}
-            <Route path="/buildings/:id" element={
-              <ProtectedRoute>
-                <BuildingDetailPage />
               </ProtectedRoute>
             } />
 
@@ -94,6 +109,11 @@ function App() {
               )
             } />
 
+            <Route path="/syndicats_copro/create/:coproId" element={
+              <ProtectedRoute>
+                <SyndicatCreatePage />
+              </ProtectedRoute>
+            } />
             {/* Route pour gérer les chemins non trouvés */}
             <Route path="*" element={
               <div className="container mx-auto px-4 py-8 text-center">

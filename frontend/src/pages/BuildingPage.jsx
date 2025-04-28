@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import BuildingInfoCard from '../components/BuildingInfoCard';
 import ApartmentCard from '../components/ApartmentCard';
 import AddApartmentCard from '../components/AddApartmentCard';
+import CoproSummary from '../components/CoproSummary';
 
 export default function BuildingPage() {
   const { buildingId } = useParams();
@@ -12,33 +13,15 @@ export default function BuildingPage() {
   const [apartments, setApartments] = useState([]);
 
   useEffect(() => {
-    fetch(`/api/buildings/${buildingId}`)
-      .then(res => res.json())
-      .then(data => setBuilding(data));
-
-    const token =
-      localStorage.getItem('access_token') ||
-      sessionStorage.getItem('access_token');
-
-    fetch(`http://localhost:8000/buildings/${buildingId}/apartments`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    })
-      .then(async res => {
-        const text = await res.text();
-        try {
-          return JSON.parse(text);
-        } catch {
-          throw new Error("Réponse inattendue du serveur : " + text.slice(0, 100));
-        }
-      })
-      .then(data => setApartments(data))
-      .catch(err => {
-        setApartments([]);
-        if (err.message.startsWith("Réponse inattendue du serveur")) {
-          console.error("Réponse brute du serveur (copie/colle ce bloc pour le support) :", err.message);
-        }
-        alert(err.message);
-      });
+    // Utilise apiClient pour la bonne baseURL et le token automatique
+    import('../services/api').then(({ default: apiClient }) => {
+      apiClient.get(`/buildings/${buildingId}`)
+        .then(res => setBuilding(res.data))
+        .catch(() => setBuilding(null));
+      apiClient.get(`/buildings/${buildingId}/apartments`)
+        .then(res => setApartments(res.data))
+        .catch(() => setApartments([]));
+    });
   }, [buildingId]);
 
   const handleEdit = () => {
@@ -70,6 +53,20 @@ export default function BuildingPage() {
         ← Retour à la liste des immeubles
       </button>
       <BuildingInfoCard building={building} onEdit={handleEdit} />
+
+      {/* Encart Copropriété */}
+      {building && building.copro_id ? (
+        <CoproSummary coproId={building.copro_id} navigate={navigate} />
+      ) : (
+        <div style={{marginBottom:32}}>
+          <button
+            style={{background:'#1976d2',color:'white',padding:'8px 18px',border:'none',borderRadius:4,cursor:'pointer',fontWeight:'bold'}}
+            onClick={() => navigate(`/copros/new?buildingId=${buildingId}`)}
+          >
+            + Associer une copropriété
+          </button>
+        </div>
+      )}
 
       <h3>Appartements</h3>
       <div
