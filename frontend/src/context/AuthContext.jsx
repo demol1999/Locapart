@@ -31,21 +31,28 @@ export const AuthProvider = ({ children }) => {
       const response = await apiClient.post('/login/', params, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       });
-      const { access_token } = response.data;
-      console.log('[login] Token reçu:', access_token);
-      // Gestion du stockage du token selon rememberMe
+      const { access_token, refresh_token } = response.data;
+      console.log('[login] Tokens reçus');
+      
+      // Gestion du stockage selon rememberMe
       if (credentials.rememberMe) {
+        // Connexion persistante : localStorage + cookie pour refresh token
         localStorage.setItem('access_token', access_token);
+        localStorage.setItem('refresh_token', refresh_token);
         sessionStorage.removeItem('access_token');
-        // Stocke aussi dans un cookie persistant (30 jours)
-        document.cookie = `access_token=${access_token}; path=/; max-age=${60 * 60 * 24 * 30}`;
-        console.log('[login] Token stocké dans localStorage et cookie');
+        sessionStorage.removeItem('refresh_token');
+        
+        const isSecure = window.location.protocol === 'https:';
+        document.cookie = `refresh_token=${refresh_token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Strict${isSecure ? '; Secure' : ''}`;
+        console.log('[login] Tokens stockés en persistant');
       } else {
+        // Session temporaire : sessionStorage seulement
         sessionStorage.setItem('access_token', access_token);
+        sessionStorage.setItem('refresh_token', refresh_token);
         localStorage.removeItem('access_token');
-        // Supprime le cookie si présent
-        document.cookie = 'access_token=; path=/; max-age=0';
-        console.log('[login] Token stocké dans sessionStorage');
+        localStorage.removeItem('refresh_token');
+        document.cookie = 'refresh_token=; path=/; max-age=0; SameSite=Strict';
+        console.log('[login] Tokens stockés en session');
       }
 
       await fetchUser();
@@ -59,12 +66,19 @@ export const AuthProvider = ({ children }) => {
     }
   }, [fetchUser]);
 
-  const logout = useCallback(() => {
-    clearAuthToken();
+  // Fonction utilitaire pour nettoyer tous les tokens
+  const clearAllTokens = useCallback(() => {
     localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     sessionStorage.removeItem('access_token');
-    setUser(null);
+    sessionStorage.removeItem('refresh_token');
+    document.cookie = 'refresh_token=; path=/; max-age=0; SameSite=Strict';
   }, []);
+
+  const logout = useCallback(() => {
+    clearAllTokens();
+    setUser(null);
+  }, [clearAllTokens]);
 
   const checkAuth = useCallback(async () => {
     try {
@@ -72,12 +86,50 @@ export const AuthProvider = ({ children }) => {
       setUser(response.data);
       return true;
     } catch (error) {
-      localStorage.removeItem('access_token');
-      sessionStorage.removeItem('access_token');
+      clearAllTokens();
       setUser(null);
       return false;
     }
-  }, []);
+  }, [clearAllTokens]);
+
+  // Fonction pour rafraîchir l'access token
+  const refreshToken = useCallback(async () => {
+    try {
+      let refresh = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
+      if (!refresh) {
+        // Essayer de récupérer depuis le cookie
+        const match = document.cookie.match(/(?:^|; )refresh_token=([^;]+)/);
+        if (!match) {
+          throw new Error('Aucun refresh token trouvé');
+        }
+        refresh = match[1];
+      }
+
+      const params = new URLSearchParams();
+      params.append('refresh_token', refresh);
+      
+      const response = await apiClient.post('/refresh/', params, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      });
+
+      const { access_token } = response.data;
+      
+      // Mettre à jour le token d'accès dans le même storage qu'avant
+      if (localStorage.getItem('refresh_token')) {
+        localStorage.setItem('access_token', access_token);
+      } else {
+        sessionStorage.setItem('access_token', access_token);
+      }
+
+      console.log('[refresh] Access token mis à jour');
+      return access_token;
+    } catch (error) {
+      console.error('[refresh] Erreur de rafraîchissement:', error);
+      clearAllTokens();
+      setUser(null);
+      throw error;
+    }
+  }, [clearAllTokens]);
 
   // Au démarrage, cherche le token dans localStorage puis sessionStorage
   // Si aucun, tente de le récupérer depuis le cookie (auto-login)
@@ -88,28 +140,39 @@ export const AuthProvider = ({ children }) => {
       const match = document.cookie.match(/(?:^|; )access_token=([^;]+)/);
       if (match) {
         storedToken = match[1];
-        localStorage.setItem('access_token', storedToken); // On restaure dans le localStorage
+        // On restaure dans le localStorage pour la session courante
+        localStorage.setItem('access_token', storedToken);
       }
     }
     if (storedToken) {
-      // Ajoute le token à l'apiClient si besoin
-      if (apiClient && apiClient.defaults) {
-        apiClient.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-      }
       fetchUser().then(user => {
         if (!user) {
-          // Token invalide : déconnexion stricte
-          localStorage.removeItem('access_token');
-          sessionStorage.removeItem('access_token');
-          document.cookie = 'access_token=; path=/; max-age=0';
+          // Token invalide : nettoyage complet
+          clearAllTokens();
           setUser(null);
         }
       });
     }
-  }, [fetchUser]);
+  }, [fetchUser, clearAllTokens]);
+
+  const oauthLogin = useCallback(async (tokens, userData) => {
+    const { access_token, refresh_token } = tokens;
+    
+    // Stocker les tokens en persistant pour OAuth
+    localStorage.setItem('access_token', access_token);
+    localStorage.setItem('refresh_token', refresh_token);
+    sessionStorage.removeItem('access_token');
+    sessionStorage.removeItem('refresh_token');
+    
+    const isSecure = window.location.protocol === 'https:';
+    document.cookie = `refresh_token=${refresh_token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Strict${isSecure ? '; Secure' : ''}`;
+    
+    setUser(userData);
+    console.log('[oauthLogin] Connexion OAuth réussie');
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, checkAuth }}>
+    <AuthContext.Provider value={{ user, login, logout, checkAuth, oauthLogin }}>
       {children}
     </AuthContext.Provider>
   );

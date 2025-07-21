@@ -14,6 +14,13 @@ import ApartmentDetails from './pages/ApartmentDetails';
 import CoproPage from './pages/CoproPage';
 import SyndicatCreatePage from './pages/SyndicatCreatePage';
 import CoproCreatePage from './pages/CoproCreatePage';
+import OAuthCallbackPage from './pages/OAuthCallbackPage';
+import SubscriptionPage from './pages/SubscriptionPage';
+import PaymentHistoryPage from './pages/PaymentHistoryPage';
+import ApartmentRoomsPage from './pages/ApartmentRoomsPage';
+import RoomPhotosPage from './pages/RoomPhotosPage';
+import ApartmentGalleryPage from './pages/ApartmentGalleryPage';
+import FloorPlanEditorPage from './pages/FloorPlanEditorPage';
 
 // Composant pour les routes protégées
 const ProtectedRoute = ({ children }) => {
@@ -47,6 +54,9 @@ function App() {
                 <RegisterPage />
               </PublicRoute>
             } />
+            
+            {/* Route OAuth callback */}
+            <Route path="/auth/:provider/callback" element={<OAuthCallbackPage />} />
 
             {/* Routes protégées */}
             <Route path="/profile" element={
@@ -112,6 +122,47 @@ function App() {
             <Route path="/syndicats_copro/create/:coproId" element={
               <ProtectedRoute>
                 <SyndicatCreatePage />
+              </ProtectedRoute>
+            } />
+
+            {/* Routes d'abonnement et paiement */}
+            <Route path="/subscription" element={
+              <ProtectedRoute>
+                <SubscriptionPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/payments" element={
+              <ProtectedRoute>
+                <PaymentHistoryPage />
+              </ProtectedRoute>
+            } />
+
+            {/* Routes de gestion des pièces et photos */}
+            <Route path="/apartments/:apartmentId/rooms" element={
+              <ProtectedRoute>
+                <ApartmentRoomsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/rooms/:roomId/photos" element={
+              <ProtectedRoute>
+                <RoomPhotosPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/apartments/:apartmentId/gallery" element={
+              <ProtectedRoute>
+                <ApartmentGalleryPage />
+              </ProtectedRoute>
+            } />
+
+            {/* Routes de l'éditeur de plans 2D */}
+            <Route path="/floor-plan-editor" element={
+              <ProtectedRoute>
+                <FloorPlanEditorPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/floor-plan-editor/:planId" element={
+              <ProtectedRoute>
+                <FloorPlanEditorPage />
               </ProtectedRoute>
             } />
             {/* Route pour gérer les chemins non trouvés */}

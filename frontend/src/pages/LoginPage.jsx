@@ -4,6 +4,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api';
+import OAuthLogin from '../components/OAuthLogin';
+import FormInput from '../components/FormInput';
+import useFormValidation from '../hooks/useFormValidation';
 
 function LoginPage() {
   // Hook pour la traduction
@@ -13,22 +16,35 @@ function LoginPage() {
   // Utilisation du contexte d'authentification
   const { login } = useAuth();
 
-  // États pour les champs du formulaire, le chargement et les erreurs
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [rememberMe, setRememberMe] = useState(false);
+  
+  const {
+    values,
+    handleChange,
+    handleBlur,
+    validateForm,
+    getFieldError
+  } = useFormValidation({ email: '', password: '' });
 
   // Gestionnaire de soumission du formulaire
   const handleLogin = async (event) => {
     event.preventDefault(); // Empêche le rechargement de la page
+    
+    // Validation du formulaire
+    const isValid = validateForm();
+    if (!isValid) {
+      setError('Veuillez corriger les erreurs dans le formulaire');
+      return;
+    }
+    
     setLoading(true); // Active l'indicateur de chargement
     setError(null); // Réinitialise les erreurs précédentes
 
     try {
       // Utilise le contexte d'authentification pour la connexion
-      const success = await login({ email, password, rememberMe });
+      const success = await login({ email: values.email, password: values.password, rememberMe });
       
       if (success) {
         // Redirige vers la mosaïque des immeubles après connexion réussie
@@ -73,47 +89,32 @@ function LoginPage() {
               {t('loginPage.rememberMe')}
             </label>
           </div>
+          
           {/* Champ Email */}
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              {t('loginPage.emailLabel')} {/* Traduction */}
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="block w-full px-3 py-2 mt-1 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500"
-              placeholder={t('loginPage.emailPlaceholder')}
-            />
-          </div>
+          <FormInput
+            label={t('loginPage.emailLabel')}
+            name="email"
+            type="email"
+            value={values.email}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={getFieldError('email')}
+            placeholder={t('loginPage.emailPlaceholder')}
+            required
+          />
 
           {/* Champ Mot de passe */}
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              {t('loginPage.passwordLabel')} {/* Traduction */}
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="block w-full px-3 py-2 mt-1 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500"
-              placeholder="••••••••"
-            />
-          </div>
+          <FormInput
+            label={t('loginPage.passwordLabel')}
+            name="password"
+            type="password"
+            value={values.password}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={getFieldError('password')}
+            placeholder="••••••••"
+            required
+          />
 
           {/* Affichage des erreurs */}
           {error && (
@@ -134,6 +135,9 @@ function LoginPage() {
             </button>
           </div>
         </form>
+
+        {/* Composant OAuth pour Google et Facebook */}
+        <OAuthLogin />
 
         {/* Lien vers la page d'inscription */}
         <p className="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">

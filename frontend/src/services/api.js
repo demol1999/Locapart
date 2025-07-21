@@ -25,14 +25,61 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Intercepteur pour gérer les erreurs d'authentification
+// Intercepteur pour gérer les erreurs d'authentification et le refresh automatique
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
+  async (error) => {
+    const originalRequest = error.config;
+    
+    // Ne pas essayer de refresh sur les endpoints d'auth
+    const authEndpoints = ['/login/', '/signup/', '/refresh/'];
+    const isAuthEndpoint = authEndpoints.some(endpoint => originalRequest.url?.includes(endpoint));
+    
+    if (error.response && error.response.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+      originalRequest._retry = true;
+      
+      try {
+        // Tenter de rafraîchir le token
+        const refresh = localStorage.getItem('refresh_token') || 
+                       sessionStorage.getItem('refresh_token') ||
+                       document.cookie.match(/(?:^|; )refresh_token=([^;]+)/)?.[1];
+        
+        if (refresh) {
+          const params = new URLSearchParams();
+          params.append('refresh_token', refresh);
+          
+          const response = await apiClient.post('/refresh/', params, {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+          });
+          
+          const { access_token } = response.data;
+          
+          // Mettre à jour le token
+          if (localStorage.getItem('refresh_token')) {
+            localStorage.setItem('access_token', access_token);
+          } else {
+            sessionStorage.setItem('access_token', access_token);
+          }
+          
+          // Retry la requête originale avec le nouveau token
+          originalRequest.headers['Authorization'] = `Bearer ${access_token}`;
+          return apiClient(originalRequest);
+        }
+      } catch (refreshError) {
+        console.error('Erreur de refresh:', refreshError);
+      }
+      
+      // Si le refresh échoue, déconnecter
       localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
       sessionStorage.removeItem('access_token');
-      window.location.href = '/login';
+      sessionStorage.removeItem('refresh_token');
+      document.cookie = 'refresh_token=; path=/; max-age=0; SameSite=Strict';
+      
+      // Redirection uniquement si on n'est pas déjà sur la page de login
+      if (!window.location.pathname.includes('/login')) {
+        window.location.replace('/login');
+      }
     }
     return Promise.reject(error);
   }

@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import useFormValidation from '../hooks/useFormValidation';
+import FormInput from './FormInput';
 
 const initialState = {
   email: '',
   password: '',
+  passwordConfirm: '',
   first_name: '',
   last_name: '',
   phone: '',
@@ -17,99 +20,191 @@ const initialState = {
 
 export default function RegisterForm({ onSubmit, loading, error }) {
   const { t } = useTranslation();
-  const [form, setForm] = useState(initialState);
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-
-  function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  }
+  
+  const {
+    values,
+    handleChange,
+    handleBlur,
+    validateForm,
+    getFieldError,
+    hasFieldError
+  } = useFormValidation(initialState);
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (form.password !== confirmPassword) {
-      onSubmit(null, t('registerPage.error.passwordMismatch'));
+    
+    // Validation complète du formulaire
+    const isValid = validateForm();
+    
+    if (!isValid) {
+      onSubmit(null, 'Veuillez corriger les erreurs dans le formulaire');
       return;
     }
-    onSubmit({ ...form, rememberMe });
+
+    // Vérification de la confirmation du mot de passe
+    if (values.password !== values.passwordConfirm) {
+      onSubmit(null, 'Les mots de passe ne correspondent pas');
+      return;
+    }
+    
+    // Envoyer les données sans passwordConfirm
+    const { passwordConfirm, ...formData } = values;
+    onSubmit({ ...formData, rememberMe });
   }
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
       {/* Prénom */}
-      <div>
-        <label className="block text-sm font-medium" htmlFor="first_name">{t('registerPage.firstNameLabel')}</label>
-        <input name="first_name" id="first_name" type="text" required value={form.first_name} onChange={handleChange}
-          className="w-full px-3 py-2 border rounded" placeholder={t('registerPage.firstNamePlaceholder')} />
-      </div>
+      <FormInput
+        label={t('registerPage.firstNameLabel')}
+        name="first_name"
+        type="text"
+        value={values.first_name}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={getFieldError('first_name')}
+        placeholder={t('registerPage.firstNamePlaceholder')}
+        required
+      />
+
       {/* Nom */}
-      <div>
-        <label className="block text-sm font-medium" htmlFor="last_name">{t('registerPage.lastNameLabel')}</label>
-        <input name="last_name" id="last_name" type="text" required value={form.last_name} onChange={handleChange}
-          className="w-full px-3 py-2 border rounded" placeholder={t('registerPage.lastNamePlaceholder')} />
-      </div>
+      <FormInput
+        label={t('registerPage.lastNameLabel')}
+        name="last_name"
+        type="text"
+        value={values.last_name}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={getFieldError('last_name')}
+        placeholder={t('registerPage.lastNamePlaceholder')}
+        required
+      />
+
       {/* Email */}
-      <div>
-        <label className="block text-sm font-medium" htmlFor="email">{t('registerPage.emailLabel')}</label>
-        <input name="email" id="email" type="email" required value={form.email} onChange={handleChange}
-          className="w-full px-3 py-2 border rounded" placeholder={t('registerPage.emailPlaceholder')} />
-      </div>
+      <FormInput
+        label={t('registerPage.emailLabel')}
+        name="email"
+        type="email"
+        value={values.email}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={getFieldError('email')}
+        placeholder={t('registerPage.emailPlaceholder')}
+        required
+      />
+
       {/* Téléphone */}
-      <div>
-        <label className="block text-sm font-medium" htmlFor="phone">{t('registerPage.phoneLabel')}</label>
-        <input name="phone" id="phone" type="tel" required value={form.phone} onChange={handleChange}
-          className="w-full px-3 py-2 border rounded" placeholder={t('registerPage.phonePlaceholder')} />
-      </div>
+      <FormInput
+        label={t('registerPage.phoneLabel')}
+        name="phone"
+        type="tel"
+        value={values.phone}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={getFieldError('phone')}
+        placeholder={t('registerPage.phonePlaceholder')}
+        required
+      />
+
       {/* Adresse (numéro et rue) */}
-      <div className="flex gap-2">
-        <div className="flex-1">
-          <label className="block text-sm font-medium" htmlFor="street_number">{t('registerPage.streetNumberLabel') || 'N°'}</label>
-          <input name="street_number" id="street_number" type="text" value={form.street_number} onChange={handleChange}
-            className="w-full px-3 py-2 border rounded" placeholder={t('registerPage.streetNumberPlaceholder') || ''} />
-        </div>
-        <div className="flex-1">
-          <label className="block text-sm font-medium" htmlFor="street_name">{t('registerPage.streetNameLabel') || 'Rue'}</label>
-          <input name="street_name" id="street_name" type="text" value={form.street_name} onChange={handleChange}
-            className="w-full px-3 py-2 border rounded" placeholder={t('registerPage.streetNamePlaceholder') || ''} />
-        </div>
+      <div className="grid grid-cols-2 gap-4">
+        <FormInput
+          label={t('registerPage.streetNumberLabel') || 'N°'}
+          name="street_number"
+          type="text"
+          value={values.street_number}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={getFieldError('street_number')}
+          placeholder={t('registerPage.streetNumberPlaceholder') || ''}
+        />
+        <FormInput
+          label={t('registerPage.streetNameLabel') || 'Rue'}
+          name="street_name"
+          type="text"
+          value={values.street_name}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={getFieldError('street_name')}
+          placeholder={t('registerPage.streetNamePlaceholder') || ''}
+        />
       </div>
+
       {/* Complément */}
-      <div>
-        <label className="block text-sm font-medium" htmlFor="complement">{t('registerPage.complementLabel') || 'Complément'}</label>
-        <input name="complement" id="complement" type="text" value={form.complement} onChange={handleChange}
-          className="w-full px-3 py-2 border rounded" placeholder={t('registerPage.complementPlaceholder') || ''} />
-      </div>
+      <FormInput
+        label={t('registerPage.complementLabel') || 'Complément'}
+        name="complement"
+        type="text"
+        value={values.complement}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={getFieldError('complement')}
+        placeholder={t('registerPage.complementPlaceholder') || ''}
+      />
+
       {/* Code postal, Ville, Pays */}
-      <div className="flex gap-2">
-        <div className="flex-1">
-          <label className="block text-sm font-medium" htmlFor="postal_code">{t('registerPage.postalCodeLabel')}</label>
-          <input name="postal_code" id="postal_code" type="text" value={form.postal_code} onChange={handleChange}
-            className="w-full px-3 py-2 border rounded" placeholder={t('registerPage.postalCodePlaceholder')} />
-        </div>
-        <div className="flex-1">
-          <label className="block text-sm font-medium" htmlFor="city">{t('registerPage.cityLabel')}</label>
-          <input name="city" id="city" type="text" value={form.city} onChange={handleChange}
-            className="w-full px-3 py-2 border rounded" placeholder={t('registerPage.cityPlaceholder')} />
-        </div>
-        <div className="flex-1">
-          <label className="block text-sm font-medium" htmlFor="country">{t('registerPage.countryLabel')}</label>
-          <input name="country" id="country" type="text" value={form.country} onChange={handleChange}
-            className="w-full px-3 py-2 border rounded" placeholder={t('registerPage.countryPlaceholder')} />
-        </div>
+      <div className="grid grid-cols-3 gap-4">
+        <FormInput
+          label={t('registerPage.postalCodeLabel')}
+          name="postal_code"
+          type="text"
+          value={values.postal_code}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={getFieldError('postal_code')}
+          placeholder={t('registerPage.postalCodePlaceholder')}
+        />
+        <FormInput
+          label={t('registerPage.cityLabel')}
+          name="city"
+          type="text"
+          value={values.city}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={getFieldError('city')}
+          placeholder={t('registerPage.cityPlaceholder')}
+        />
+        <FormInput
+          label={t('registerPage.countryLabel')}
+          name="country"
+          type="text"
+          value={values.country}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={getFieldError('country')}
+          placeholder={t('registerPage.countryPlaceholder')}
+        />
       </div>
+
       {/* Mot de passe */}
-      <div>
-        <label className="block text-sm font-medium" htmlFor="password">{t('registerPage.passwordLabel')}</label>
-        <input name="password" id="password" type="password" required value={form.password} onChange={handleChange}
-          className="w-full px-3 py-2 border rounded" placeholder="••••••••" />
-      </div>
+      <FormInput
+        label={t('registerPage.passwordLabel')}
+        name="password"
+        type="password"
+        value={values.password}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={getFieldError('password')}
+        placeholder="••••••••"
+        required
+      />
+
       {/* Confirmation mot de passe */}
-      <div>
-        <label className="block text-sm font-medium" htmlFor="passwordConfirm">{t('registerPage.passwordConfirmLabel')}</label>
-        <input name="passwordConfirm" id="passwordConfirm" type="password" required value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
-          className="w-full px-3 py-2 border rounded" placeholder="••••••••" />
-      </div>
+      <FormInput
+        label={t('registerPage.passwordConfirmLabel')}
+        name="passwordConfirm"
+        type="password"
+        value={values.passwordConfirm}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={getFieldError('passwordConfirm')}
+        placeholder="••••••••"
+        required
+      />
+
       {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+      
       <div className="flex items-center">
         <input
           id="rememberMe"
@@ -123,7 +218,8 @@ export default function RegisterForm({ onSubmit, loading, error }) {
           {t('registerPage.rememberMe')}
         </label>
       </div>
-      <button type="submit" disabled={loading} className="w-full px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50">
+      
+      <button type="submit" disabled={loading} className="w-full px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 transition-colors">
         {loading ? t('registerPage.loadingButton') : t('registerPage.submitButton')}
       </button>
     </form>

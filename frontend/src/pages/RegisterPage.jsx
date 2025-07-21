@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api';
 import RegisterForm from '../components/RegisterForm';
+import OAuthLogin from '../components/OAuthLogin';
 
 function RegisterPage() {
   // Hooks pour traduction et navigation
@@ -65,7 +66,12 @@ function RegisterPage() {
 
         {/* Affiche le formulaire seulement si l'inscription n'est pas réussie */}
         {!success && (
-          <RegisterForm onSubmit={handleRegister} loading={loading} error={error && t(error, { defaultValue: error })} />
+          <>
+            <RegisterForm onSubmit={handleRegister} loading={loading} error={error && t(error, { defaultValue: error })} />
+            
+            {/* Composant OAuth pour Google, Facebook et Microsoft */}
+            <OAuthLogin />
+          </>
         )}
 
         {/* Lien vers la page de connexion */}

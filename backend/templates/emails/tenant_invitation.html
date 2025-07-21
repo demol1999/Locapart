@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accès à votre espace locataire - {{ company_name }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .features {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .features h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .features ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .features li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+        .cta-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+        .apartment-info {
+            background-color: #e8f6f3;
+            border-left: 4px solid #1abc9c;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .apartment-info h4 {
+            margin: 0 0 10px 0;
+            color: #16a085;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            color: #856404;
+        }
+        .warning strong {
+            color: #d68910;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .footer .contact {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🏠</div>
+            <h1>Accès à votre espace locataire</h1>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Bonjour {{ tenant_first_name }},
+            </div>
+            
+            <p>Excellente nouvelle ! Votre propriétaire vous a donné accès à votre espace locataire personnel sur <strong>{{ company_name }}</strong>.</p>
+            
+            {% if apartment_info %}
+            <div class="apartment-info">
+                <h4>🏡 Votre logement</h4>
+                <p><strong>{{ apartment_info }}</strong><br>
+                {{ building_address }}</p>
+            </div>
+            {% endif %}
+            
+            <div class="features">
+                <h3>✨ Dans votre espace personnalisé, vous pourrez :</h3>
+                <ul>
+                    <li><strong>📋 Consulter votre bail</strong> - Toutes les informations de votre contrat de location</li>
+                    <li><strong>📁 Accéder à vos documents</strong> - États des lieux, attestations, et tous vos papiers importants</li>
+                    <li><strong>🏠 Voir les détails de votre appartement</strong> - Plans, caractéristiques, et informations pratiques</li>
+                    <li><strong>📞 Contacter votre propriétaire</strong> - Communication directe et traçable</li>
+                    <li><strong>📈 Suivre votre historique</strong> - Tous vos documents et échanges centralisés</li>
+                </ul>
+            </div>
+            
+            <div class="cta-container">
+                <a href="{{ access_url }}" class="cta-button">
+                    🚀 Accéder à mon espace locataire
+                </a>
+            </div>
+            
+            <div class="warning">
+                <strong>⏰ Important :</strong> Ce lien d'accès est valide jusqu'au <strong>{{ expires_at }}</strong>. 
+                N'hésitez pas à l'utiliser dès maintenant pour découvrir votre espace !
+            </div>
+            
+            <p>Cet espace a été pensé pour simplifier votre vie de locataire et améliorer la communication avec votre propriétaire. Toutes vos informations importantes sont maintenant centralisées en un seul endroit, accessible 24h/24.</p>
+        </div>
+        
+        <div class="footer">
+            <div class="contact">
+                <strong>Une question ? Un problème technique ?</strong><br>
+                Notre équipe support est là pour vous aider :<br>
+                📧 <a href="mailto:{{ support_email }}">{{ support_email }}</a>
+            </div>
+            
+            <p style="margin-top: 20px;">
+                <strong>{{ company_name }}</strong> - Gestion locative simplifiée<br>
+                <small>Plateforme sécurisée pour propriétaires et locataires</small>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

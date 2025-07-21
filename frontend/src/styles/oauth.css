@@ -1,0 +1,141 @@
+/* Styles pour les composants OAuth */
+
+.oauth-login {
+  margin: 20px 0;
+}
+
+.oauth-divider {
+  position: relative;
+  text-align: center;
+  margin: 20px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.oauth-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #e5e7eb;
+  z-index: 1;
+}
+
+.oauth-divider span {
+  background: white;
+  padding: 0 16px;
+  position: relative;
+  z-index: 2;
+}
+
+.dark .oauth-divider::before {
+  background: #374151;
+}
+
+.dark .oauth-divider span {
+  background: #1f2937;
+  color: #d1d5db;
+}
+
+.oauth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Boutons OAuth base */
+.google-login-btn,
+.facebook-login-btn,
+.microsoft-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid;
+}
+
+/* Bouton Google */
+.google-login-btn {
+  background-color: white;
+  color: #3c4043;
+  border-color: #dadce0;
+}
+
+.google-login-btn:hover {
+  background-color: #f8f9fa;
+  border-color: #c1c3c7;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dark .google-login-btn {
+  background-color: #1f2937;
+  color: #f9fafb;
+  border-color: #374151;
+}
+
+.dark .google-login-btn:hover {
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+/* Bouton Facebook */
+.facebook-login-btn {
+  background-color: #1877f2;
+  color: white;
+  border-color: #1877f2;
+}
+
+.facebook-login-btn:hover {
+  background-color: #166fe5;
+  border-color: #166fe5;
+}
+
+/* Bouton Microsoft */
+.microsoft-login-btn {
+  background-color: #00bcf2;
+  color: white;
+  border-color: #00bcf2;
+}
+
+.microsoft-login-btn:hover {
+  background-color: #009fcc;
+  border-color: #009fcc;
+}
+
+/* États communs */
+.google-login-btn:active,
+.facebook-login-btn:active,
+.microsoft-login-btn:active {
+  transform: translateY(1px);
+}
+
+.google-login-btn:disabled,
+.facebook-login-btn:disabled,
+.microsoft-login-btn:disabled {
+  background-color: #9ca3af;
+  border-color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* Responsive */
+@media (max-width: 480px) {
+  .oauth-buttons {
+    gap: 10px;
+  }
+  
+  .facebook-login-btn {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+}

@@ -1,153 +1,141 @@
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
+import { LogOut, User, Globe, Home } from 'lucide-react';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
 
-import React, { useState, useRef, useEffect } from 'react';
-
+// Single Responsibility: Composant responsable uniquement de la navigation
 const Navbar = () => {
   const { t, i18n } = useTranslation();
   const { user, logout } = useAuth();
   const [openMenu, setOpenMenu] = useState(false);
   const menuRef = useRef(null);
 
+  // Single Responsibility: Hook pour gérer la fermeture du menu
   useEffect(() => {
     if (!openMenu) return;
-    function handleClick(e) {
-      // Ferme le menu si clic en dehors du bouton ou du menu
-      const dropdownMenu = document.getElementById('dropdownMenu');
-      const menuButton = document.getElementById('menuButton');
-      if (
-        dropdownMenu &&
-        !dropdownMenu.contains(e.target) &&
-        menuButton &&
-        !menuButton.contains(e.target)
-      ) {
+    
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
         setOpenMenu(false);
       }
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [openMenu]);
 
+  // Single Responsibility: Fonction pour changer de langue
   const changeLang = (lang) => {
     i18n.changeLanguage(lang);
   };
 
+  // Single Responsibility: Composant pour les boutons de langue
+  const LanguageToggle = ({ lang, flag, label }) => (
+    <Button
+      variant={i18n.language === lang ? "default" : "outline"}
+      size="sm"
+      onClick={() => changeLang(lang)}
+      className="text-sm"
+      aria-label={label}
+    >
+      {flag}
+    </Button>
+  );
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 shadow-md dark:text-white transition-colors duration-200" style={{ height: '1cm', minHeight: '1cm', maxHeight: '1cm' }}>
-      <div className="navbar-inner h-full flex flex-row flex-nowrap w-screen min-w-0 justify-end items-center px-4 sm:px-8">
-        {/* Logo et nom du site à gauche */}
-        <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity select-none mr-auto">
-          <img
-            src="/logo.png"
-            alt="Logo"
-            className="h-[0.8cm] w-[0.8cm] object-contain"
-            style={{ maxHeight: '0.8cm', maxWidth: '0.8cm' }}
-          />
-          <span className="text-xl font-bold tracking-wide">LocAppart</span>
-        </Link>
-        {/* Bloc actions à droite : langues + connexion/profil */}
-        <div className="flex flex-row items-center gap-1 ml-auto min-w-0 overflow-x-auto whitespace-nowrap">
-          <button
-            onClick={() => changeLang('fr')}
-            aria-label="Changer la langue en français"
-            aria-pressed={i18n.language === 'fr'}
-            style={{
-              fontSize: '1.25rem',
-              padding: '8px 12px',
-              borderRadius: '4px',
-              marginRight: '2px',
-              backgroundColor: i18n.language === 'fr' ? '#2563eb' : '#f0f0f0',
-              color: i18n.language === 'fr' ? 'white' : '#222',
-              fontWeight: i18n.language === 'fr' ? 700 : 400,
-              border: i18n.language === 'fr' ? '2px solid #1d4ed8' : '1px solid #ccc',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              outline: 'none',
-            }}
-          >
-            🇫🇷
-          </button>
-          <button
-            onClick={() => changeLang('en')}
-            aria-label="Change language to English"
-            aria-pressed={i18n.language === 'en'}
-            style={{
-              fontSize: '1.25rem',
-              padding: '8px 12px',
-              borderRadius: '4px',
-              marginLeft: '2px',
-              backgroundColor: i18n.language === 'en' ? '#2563eb' : '#f0f0f0',
-              color: i18n.language === 'en' ? 'white' : '#222',
-              fontWeight: i18n.language === 'en' ? 700 : 400,
-              border: i18n.language === 'en' ? '2px solid #1d4ed8' : '1px solid #ccc',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              outline: 'none',
-            }}
-          >
-            🇬🇧
-          </button>
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+      <div className="container flex h-16 items-center px-4">
+        {/* Logo et navigation principale */}
+        <div className="mr-4 flex">
+          <Link to="/" className="mr-6 flex items-center space-x-2 hover:opacity-80 transition-opacity">
+            <Home className="h-6 w-6 text-primary" />
+            <span className="font-bold text-xl">LocAppart</span>
+          </Link>
+        </div>
+        
+        {/* Navigation links pour utilisateurs connectés */}
+        {user && (
+          <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+            <nav className="flex items-center space-x-6 text-sm font-medium">
+              <Link
+                to="/buildings"
+                className="transition-colors hover:text-foreground/80 text-foreground/60"
+              >
+                Immeubles
+              </Link>
+              <Link
+                to="/subscription"
+                className="transition-colors hover:text-foreground/80 text-foreground/60"
+              >
+                Abonnement
+              </Link>
+            </nav>
+          </div>
+        )}
+
+        {/* Actions droite */}
+        <div className="flex flex-1 items-center justify-end space-x-2">
+          {/* Sélecteur de langue moderne */}
+          <div className="flex items-center space-x-1">
+            <Globe className="h-4 w-4 text-muted-foreground" />
+            <LanguageToggle 
+              lang="fr" 
+              flag="🇫🇷" 
+              label="Changer la langue en français" 
+            />
+            <LanguageToggle 
+              lang="en" 
+              flag="🇬🇧" 
+              label="Change language to English" 
+            />
+          </div>
+
+          {/* Menu utilisateur ou bouton de connexion */}
           {user ? (
-            <>
-              {/* Nouveau menu déroulant profil/déconnexion (style inline, centré, inspiré du code fourni) */}
-              <div style={{ position: 'relative', display: 'inline-block' }}>
-                <button
-                  ref={menuRef}
-                  onClick={() => setOpenMenu((prev) => !prev)}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#f0f0f0',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontWeight: 500,
-                  }}
-                >
-                  {user.first_name} {user.last_name}
-                </button>
-                {openMenu && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 'calc(100% + 8px)',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      backgroundColor: 'white',
-                      border: '1px solid #ccc',
-                      borderRadius: '6px',
-                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-                      padding: '8px 12px',
-                      zIndex: 1000,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    <button
-                      onClick={logout}
-                      style={{
-                        backgroundColor: '#f44336',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 12px',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontWeight: 500,
+            <div className="relative" ref={menuRef}>
+              <Button
+                variant="ghost"
+                className="relative h-9 w-9 rounded-full"
+                onClick={() => setOpenMenu(!openMenu)}
+              >
+                <div className="flex items-center justify-center w-full h-full bg-primary text-primary-foreground rounded-full">
+                  <User className="h-4 w-4" />
+                </div>
+              </Button>
+              
+              {openMenu && (
+                <div className="absolute right-0 mt-2 w-56 rounded-md bg-popover shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                  <div className="py-1">
+                    <div className="px-4 py-2 text-sm text-muted-foreground border-b">
+                      <p className="font-medium text-foreground">
+                        {user.first_name} {user.last_name}
+                      </p>
+                      <p className="text-xs">{user.email}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start px-4 py-2 text-sm text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => {
+                        logout();
+                        setOpenMenu(false);
                       }}
                     >
+                      <LogOut className="mr-2 h-4 w-4" />
                       {t('logout')}
-                    </button>
+                    </Button>
                   </div>
-                )}
-              </div>
-            </>
+                </div>
+              )}
+            </div>
           ) : (
-            <Link 
-              to="/login" 
-              className="px-4 py-1.5 rounded-full bg-blue-500 hover:bg-blue-600 text-white transition-colors text-sm font-medium"
-              style={{ minHeight: '0.7cm' }}
-            >
-              {t('login')}
-            </Link>
+            <Button asChild size="sm">
+              <Link to="/login">
+                {t('login')}
+              </Link>
+            </Button>
           )}
         </div>
       </div>

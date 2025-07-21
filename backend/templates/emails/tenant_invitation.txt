@@ -1,0 +1,61 @@
+================================================================================
+{{ company_name }} - Accès à votre espace locataire
+================================================================================
+
+Bonjour {{ tenant_first_name }},
+
+Excellente nouvelle ! Votre propriétaire vous a donné accès à votre espace 
+locataire personnel sur {{ company_name }}.
+
+{% if apartment_info %}
+🏡 VOTRE LOGEMENT
+{{ apartment_info }}
+{{ building_address }}
+
+{% endif %}
+✨ DANS VOTRE ESPACE PERSONNALISÉ, VOUS POURREZ :
+
+📋 Consulter votre bail
+   Toutes les informations de votre contrat de location
+
+📁 Accéder à vos documents  
+   États des lieux, attestations, et tous vos papiers importants
+
+🏠 Voir les détails de votre appartement
+   Plans, caractéristiques, et informations pratiques
+
+📞 Contacter votre propriétaire
+   Communication directe et traçable
+
+📈 Suivre votre historique
+   Tous vos documents et échanges centralisés
+
+================================================================================
+🚀 ACCÉDER À MON ESPACE LOCATAIRE
+================================================================================
+
+Cliquez sur ce lien pour accéder à votre espace :
+{{ access_url }}
+
+⏰ IMPORTANT : Ce lien d'accès est valide jusqu'au {{ expires_at }}.
+N'hésitez pas à l'utiliser dès maintenant pour découvrir votre espace !
+
+================================================================================
+
+Cet espace a été pensé pour simplifier votre vie de locataire et améliorer 
+la communication avec votre propriétaire. Toutes vos informations importantes 
+sont maintenant centralisées en un seul endroit, accessible 24h/24.
+
+================================================================================
+BESOIN D'AIDE ?
+================================================================================
+
+Une question ? Un problème technique ?
+Notre équipe support est là pour vous aider :
+
+📧 Email : {{ support_email }}
+
+================================================================================
+{{ company_name }} - Gestion locative simplifiée
+Plateforme sécurisée pour propriétaires et locataires
+================================================================================
