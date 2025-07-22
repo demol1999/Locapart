@@ -27,7 +27,7 @@ from lease_template_schemas import (
     LeaseStats
 )
 from lease_pdf_service import create_lease_document_service
-from electronic_signature_service import ElectronicSignatureServiceFactory
+from electronic_signature_service import ElectronicSignatureService
 from audit_logger import AuditLogger
 
 router = APIRouter(prefix="/api/lease-generation", tags=["Génération de Baux"])

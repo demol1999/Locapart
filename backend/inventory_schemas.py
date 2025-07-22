@@ -67,7 +67,7 @@ class RoomTypeEnum(str, Enum):
 class InventoryItemDefect(BaseModel):
     """Défaut sur un élément"""
     description: str
-    severity: str = Field(..., regex="^(minor|moderate|major|critical)$")
+    severity: str = Field(..., pattern="^(minor|moderate|major|critical)$")
     location: Optional[str] = None
     estimated_repair_cost: Optional[float] = None
 
@@ -262,7 +262,7 @@ class ParticipantInfo(BaseModel):
 class UtilityReading(BaseModel):
     """Relevé de compteur"""
     name: str
-    type: str = Field(..., regex="^(electricity|gas|water_cold|water_hot|heating)$")
+    type: str = Field(..., pattern="^(electricity|gas|water_cold|water_hot|heating)$")
     reading: float = Field(..., ge=0)
     unit: str = "kWh"
     location: Optional[str] = None
@@ -275,7 +275,7 @@ class DetailedInventoryCreate(BaseModel):
     """Schéma pour créer un état des lieux détaillé"""
     lease_id: int
     apartment_id: int
-    inventory_type: str = Field(..., regex="^(ENTRY|EXIT|PERIODIC)$")
+    inventory_type: str = Field(..., pattern="^(ENTRY|EXIT|PERIODIC)$")
     
     # Planification
     scheduled_date: Optional[datetime] = None
@@ -312,7 +312,7 @@ class DetailedInventoryCreate(BaseModel):
 
 class DetailedInventoryUpdate(BaseModel):
     """Schéma pour mettre à jour un état des lieux"""
-    status: Optional[str] = Field(None, regex="^(DRAFT|IN_PROGRESS|PENDING_SIGNATURE|SIGNED|COMPLETED|CANCELLED)$")
+    status: Optional[str] = Field(None, pattern="^(DRAFT|IN_PROGRESS|PENDING_SIGNATURE|SIGNED|COMPLETED|CANCELLED)$")
     scheduled_date: Optional[datetime] = None
     conducted_date: Optional[datetime] = None
     
@@ -399,7 +399,7 @@ class InventoryPhotoCreate(BaseModel):
     room_id: Optional[int] = None
     caption: Optional[str] = None
     description: Optional[str] = None
-    photo_type: Optional[str] = Field(None, regex="^(overview|detail|defect|comparison)$")
+    photo_type: Optional[str] = Field(None, pattern="^(overview|detail|defect|comparison)$")
     position_in_room: Optional[str] = None
     angle: Optional[str] = None
     order: int = Field(1, ge=1)
@@ -591,10 +591,10 @@ class InventoryRoomCreate(InventoryRoomCreate):
 class InventoryExportRequest(BaseModel):
     """Demande d'export d'état des lieux"""
     inventory_id: int
-    format: str = Field("pdf", regex="^(pdf|excel|json)$")
+    format: str = Field("pdf", pattern="^(pdf|excel|json)$")
     include_photos: bool = True
     include_signatures: bool = True
-    language: str = Field("fr", regex="^(fr|en)$")
+    language: str = Field("fr", pattern="^(fr|en)$")
 
 
 class InventoryExportResult(BaseModel):

@@ -21,6 +21,8 @@ import ApartmentRoomsPage from './pages/ApartmentRoomsPage';
 import RoomPhotosPage from './pages/RoomPhotosPage';
 import ApartmentGalleryPage from './pages/ApartmentGalleryPage';
 import FloorPlanEditorPage from './pages/FloorPlanEditorPage';
+import NotificationsPage from './pages/NotificationsPage';
+import NotificationSettingsPage from './pages/NotificationSettingsPage';
 
 // Composant pour les routes protégées
 const ProtectedRoute = ({ children }) => {
@@ -165,6 +167,19 @@ function App() {
                 <FloorPlanEditorPage />
               </ProtectedRoute>
             } />
+
+            {/* Routes de notifications */}
+            <Route path="/notifications" element={
+              <ProtectedRoute>
+                <NotificationsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/notification-settings" element={
+              <ProtectedRoute>
+                <NotificationSettingsPage />
+              </ProtectedRoute>
+            } />
+
             {/* Route pour gérer les chemins non trouvés */}
             <Route path="*" element={
               <div className="container mx-auto px-4 py-8 text-center">

@@ -270,7 +270,7 @@ class UserNotification(Base, TimestampMixin):
     expires_at = Column(DateTime, nullable=True)
     
     # Données additionnelles
-    metadata = Column(JSON, nullable=True)
+    notification_metadata = Column(JSON, nullable=True)
     
     # Relations
     user = relationship("UserAuth")

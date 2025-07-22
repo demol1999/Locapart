@@ -45,6 +45,52 @@ export default function ApartmentDetails() {
         ← Retour à l'immeuble
       </button>
       <BuildingInfoCard building={building} onEdit={() => building && navigate(`/buildings/${building.id}/edit`)} />
+      
+      <div style={{ display: 'flex', gap: '12px', margin: '20px 0' }}>
+        <button
+          onClick={() => navigate(`/apartments/${apartmentId}/rooms`)}
+          style={{
+            background: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: 4,
+            padding: '10px 16px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+          }}
+        >
+          🚪 Gérer les pièces
+        </button>
+        <button
+          onClick={() => navigate(`/apartments/${apartmentId}/gallery`)}
+          style={{
+            background: '#28a745',
+            color: 'white',
+            border: 'none',
+            borderRadius: 4,
+            padding: '10px 16px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+          }}
+        >
+          📸 Galerie photos
+        </button>
+        <button
+          onClick={() => navigate(`/floor-plan-editor?type=apartment&apartmentId=${apartmentId}`)}
+          style={{
+            background: '#ffc107',
+            color: 'black',
+            border: 'none',
+            borderRadius: 4,
+            padding: '10px 16px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+          }}
+        >
+          📐 Créer un plan
+        </button>
+      </div>
+      
       <h2>Détail de l'appartement 🏠</h2>
       {/* Ici tu pourras ajouter l'affichage détaillé de l'appartement */}
       <pre style={{ background: '#f7f7f7', padding: 16, borderRadius: 8 }}>

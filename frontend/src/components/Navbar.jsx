@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { LogOut, User, Globe, Home } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
+import NotificationBell from './NotificationBell';
 
 // Single Responsibility: Composant responsable uniquement de la navigation
 const Navbar = () => {
@@ -72,6 +73,18 @@ const Navbar = () => {
               >
                 Abonnement
               </Link>
+              <Link
+                to="/floor-plan-editor"
+                className="transition-colors hover:text-foreground/80 text-foreground/60"
+              >
+                📐 Plans
+              </Link>
+              <Link
+                to="/copros/new"
+                className="transition-colors hover:text-foreground/80 text-foreground/60"
+              >
+                🏢 Copros
+              </Link>
             </nav>
           </div>
         )}
@@ -92,6 +105,9 @@ const Navbar = () => {
               label="Change language to English" 
             />
           </div>
+
+          {/* Cloche de notifications (utilisateurs connectés seulement) */}
+          {user && <NotificationBell />}
 
           {/* Menu utilisateur ou bouton de connexion */}
           {user ? (
@@ -115,6 +131,35 @@ const Navbar = () => {
                       </p>
                       <p className="text-xs">{user.email}</p>
                     </div>
+                    <Link
+                      to="/profile"
+                      className="flex items-center px-4 py-2 text-sm text-foreground hover:bg-accent"
+                      onClick={() => setOpenMenu(false)}
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      Mon Profil
+                    </Link>
+                    <Link
+                      to="/notifications"
+                      className="flex items-center px-4 py-2 text-sm text-foreground hover:bg-accent"
+                      onClick={() => setOpenMenu(false)}
+                    >
+                      🔔 Notifications
+                    </Link>
+                    <Link
+                      to="/notification-settings"
+                      className="flex items-center px-4 py-2 text-sm text-foreground hover:bg-accent"
+                      onClick={() => setOpenMenu(false)}
+                    >
+                      ⚙️ Paramètres
+                    </Link>
+                    <Link
+                      to="/payments"
+                      className="flex items-center px-4 py-2 text-sm text-foreground hover:bg-accent border-b"
+                      onClick={() => setOpenMenu(false)}
+                    >
+                      💳 Paiements
+                    </Link>
                     <Button
                       variant="ghost"
                       className="w-full justify-start px-4 py-2 text-sm text-destructive hover:text-destructive hover:bg-destructive/10"

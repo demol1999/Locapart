@@ -144,9 +144,9 @@ async def create_tenant(
 @router.post("/with-invitation", response_model=TenantOut)
 async def create_tenant_with_invitation(
     tenant_data: TenantCreate,
+    background_tasks: BackgroundTasks,
     send_invitation: bool = False,
     invitation_expires_hours: int = 168,
-    background_tasks: BackgroundTasks,
     current_user: UserAuth = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -257,8 +257,8 @@ async def create_and_send_invitation_task(
 @router.post("/{tenant_id}/send-invitation")
 async def send_tenant_invitation(
     tenant_id: int,
-    invitation_expires_hours: int = 168,
     background_tasks: BackgroundTasks,
+    invitation_expires_hours: int = 168,
     current_user: UserAuth = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):

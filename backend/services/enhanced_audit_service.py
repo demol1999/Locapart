@@ -137,7 +137,7 @@ class EnhancedAuditService:
         Calcule automatiquement la complexité de l'undo
         """
         # Actions non-undoables
-        if action in [ActionType.read, ActionType.LOGIN, ActionType.LOGOUT, ActionType.ACCESS_DENIED]:
+        if action in [ActionType.READ, ActionType.LOGIN, ActionType.LOGOUT, ActionType.ACCESS_DENIED]:
             return UndoComplexity.IMPOSSIBLE
         
         # UPDATE simple sur utilisateur

@@ -48,7 +48,7 @@ def get_admin_user(current_user: UserAuth = Depends(get_current_user), db: Sessi
     AuditLogger.log_action(
         db=db,
         user_id=current_user.id,
-        action=ActionType.read,
+        action=ActionType.READ,
         entity_type=EntityType.USER,
         description=f"Accès panel admin - Rôle: {admin_user.admin_role}"
     )

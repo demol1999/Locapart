@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Login - Locapart</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; padding: 20px; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin: 20px 0; padding: 15px; border-radius: 4px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test de Connexion Locapart</h1>
+    
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" value="test.user@locapart.com" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Mot de passe:</label>
+            <input type="password" id="password" value="TestPass123!" required>
+        </div>
+        
+        <button type="submit">🔐 Tester la Connexion</button>
+    </form>
+    
+    <div id="result"></div>
+    
+    <div class="info">
+        <strong>📋 Instructions:</strong><br>
+        1. Assurez-vous que le backend fonctionne sur http://localhost:8000<br>
+        2. Cliquez sur "Tester la Connexion"<br>
+        3. Regardez les résultats ci-dessous et la console (F12)
+    </div>
+
+    <script>
+        const resultDiv = document.getElementById('result');
+        
+        function showResult(type, message) {
+            resultDiv.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+        
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            showResult('info', '⏳ Test en cours...');
+            console.log('🧪 Test de connexion commencé');
+            
+            try {
+                // Test 1: Vérification CORS avec OPTIONS
+                console.log('1️⃣ Test CORS OPTIONS...');
+                const optionsResponse = await fetch('http://127.0.0.1:8000/login/', {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type'
+                    }
+                });
+                console.log('✅ CORS OPTIONS OK:', optionsResponse.status);
+                
+                // Test 2: Connexion réelle
+                console.log('2️⃣ Test LOGIN POST...');
+                const loginResponse = await fetch('http://127.0.0.1:8000/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+                });
+                
+                console.log('📊 Statut de réponse:', loginResponse.status);
+                
+                if (loginResponse.ok) {
+                    const data = await loginResponse.json();
+                    console.log('✅ Connexion réussie:', data);
+                    showResult('success', `
+                        ✅ <strong>Connexion Réussie!</strong><br>
+                        📧 Email: ${email}<br>
+                        🎟️ Token reçu: ${data.access_token ? 'Oui' : 'Non'}<br>
+                        ⏰ Expires dans: ${data.expires_in} secondes
+                    `);
+                } else {
+                    const errorData = await loginResponse.json();
+                    console.error('❌ Erreur de connexion:', errorData);
+                    showResult('error', `
+                        ❌ <strong>Échec de Connexion</strong><br>
+                        📊 Code: ${loginResponse.status}<br>
+                        📝 Message: ${JSON.stringify(errorData)}
+                    `);
+                }
+                
+            } catch (error) {
+                console.error('💥 Erreur réseau:', error);
+                showResult('error', `
+                    💥 <strong>Erreur Réseau</strong><br>
+                    📝 Détails: ${error.message}<br>
+                    🔍 Vérifiez que le backend fonctionne sur port 8000
+                `);
+            }
+        });
+        
+        // Test automatique au chargement
+        window.addEventListener('load', () => {
+            console.log('🌐 Page de test chargée depuis:', window.location.origin);
+            console.log('🎯 Backend cible: http://127.0.0.1:8000');
+        });
+    </script>
+</body>
+</html>

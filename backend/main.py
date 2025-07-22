@@ -32,6 +32,7 @@ import lease_generation_routes
 import property_management_routes
 import email_verification_routes
 from routes_admin_simple import admin_router
+from routes_audit_undo import audit_undo_router
 import schemas
 import os
 import shutil
@@ -84,8 +85,14 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
+        "http://localhost:5175",
+        "http://127.0.0.1:5175",
         "http://localhost:52388",
-        "http://127.0.0.1:52388"
+        "http://127.0.0.1:52388",
+        "file://",
+        "null"
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -1100,3 +1107,4 @@ app.include_router(lease_generation_routes.router)
 app.include_router(property_management_routes.router)
 app.include_router(email_verification_routes.router)
 app.include_router(admin_router)
+app.include_router(audit_undo_router)

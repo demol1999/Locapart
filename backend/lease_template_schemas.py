@@ -79,7 +79,7 @@ class TenantPreferences(BaseModel):
     student_status_required: bool = False
     minimum_age: Optional[int] = Field(None, ge=18, le=99)
     maximum_age: Optional[int] = Field(None, ge=18, le=99)
-    preferred_gender: Optional[str] = Field(None, regex="^(male|female|any)$")
+    preferred_gender: Optional[str] = Field(None, pattern="^(male|female|any)$")
     
     @validator('maximum_age')
     def validate_age_range(cls, v, values):
@@ -309,7 +309,7 @@ class LeaseUploadCreate(BaseModel):
 class LeaseSignatureCreate(BaseModel):
     """Schéma pour ajouter un signataire"""
     signer_name: str = Field(..., min_length=1, max_length=200)
-    signer_email: str = Field(..., regex=r'^[^@]+@[^@]+\.[^@]+$')
+    signer_email: str = Field(..., pattern=r'^[^@]+@[^@]+\.[^@]+$')
     signer_role: SignerRoleEnum
     signer_phone: Optional[str] = None
     signing_order: int = Field(1, ge=1, le=10)
@@ -425,9 +425,9 @@ class LeaseClauseOut(BaseModel):
 class LeaseGenerationRequest(BaseModel):
     """Demande de génération de PDF"""
     lease_id: int
-    format: str = Field("pdf", regex="^(pdf|docx|html)$")
+    format: str = Field("pdf", pattern="^(pdf|docx|html)$")
     include_attachments: bool = True
-    language: str = Field("fr", regex="^(fr|en)$")
+    language: str = Field("fr", pattern="^(fr|en)$")
     watermark: Optional[str] = None
 
 

@@ -178,17 +178,22 @@ export default function RegisterForm({ onSubmit, loading, error }) {
       </div>
 
       {/* Mot de passe */}
-      <FormInput
-        label={t('registerPage.passwordLabel')}
-        name="password"
-        type="password"
-        value={values.password}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        error={getFieldError('password')}
-        placeholder="••••••••"
-        required
-      />
+      <div>
+        <FormInput
+          label={t('registerPage.passwordLabel')}
+          name="password"
+          type="password"
+          value={values.password}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={getFieldError('password')}
+          placeholder="••••••••"
+          required
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          Le mot de passe doit contenir : 8+ caractères, 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial
+        </p>
+      </div>
 
       {/* Confirmation mot de passe */}
       <FormInput

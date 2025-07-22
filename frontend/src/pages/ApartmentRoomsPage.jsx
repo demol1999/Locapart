@@ -370,13 +370,19 @@ const ApartmentRoomsPage = () => {
                   onClick={() => navigate(`/rooms/${room.id}/photos`)}
                   className="flex-1 bg-green-600 text-white py-2 px-3 rounded-md text-sm font-medium hover:bg-green-700 transition-colors"
                 >
-                  Photos
+                  📸 Photos
+                </button>
+                <button
+                  onClick={() => navigate(`/floor-plan-editor?type=room&roomId=${room.id}&apartmentId=${apartmentId}`)}
+                  className="flex-1 bg-yellow-600 text-white py-2 px-3 rounded-md text-sm font-medium hover:bg-yellow-700 transition-colors"
+                >
+                  📐 Plan
                 </button>
                 <button
                   onClick={() => startEdit(room)}
                   className="flex-1 bg-indigo-600 text-white py-2 px-3 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors"
                 >
-                  Modifier
+                  ✏️ Modifier
                 </button>
                 <button
                   onClick={() => handleDeleteRoom(room)}
